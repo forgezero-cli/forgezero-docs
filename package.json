@@ -6,7 +6,7 @@
   "scripts": {
     "generate": "bun scripts/generate-content.mjs",
     "dev": "bun run generate && vite",
-    "build": "bun run generate && vite build",
+    "build": "bun scripts/generate-content.mjs && vite build && cp dist/index.html dist/404.html",
     "preview": "vite preview",
     "deploy": "gh-pages -d dist"
   },
