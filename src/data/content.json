@@ -14,7 +14,7 @@
         {
           "type": "alert",
           "variant": "note",
-          "content": "<strong>Version:</strong> 5.1.0 &nbsp;·&nbsp; <strong>Language:</strong> Go &nbsp;·&nbsp; <strong>License:</strong> GPLv3 &nbsp;·&nbsp; <strong>Platform:</strong> Linux · Windows · macOS"
+          "content": "<strong>Version:</strong> 5.3.0 &nbsp;·&nbsp; <strong>Language:</strong> Go &nbsp;·&nbsp; <strong>License:</strong> GPLv3 &nbsp;·&nbsp; <strong>Platform:</strong> Linux · Windows · macOS"
         },
         {
           "type": "paragraph",
@@ -750,6 +750,155 @@
         {
           "type": "paragraph",
           "content": "ForgeZero is intentionally lightweight — a single statically compiled Go binary with no runtime dependencies beyond the standard assembler/compiler toolchain."
+        },
+        {
+          "type": "paragraph",
+          "content": "<strong>What's new in v5.2.0:</strong>"
+        },
+        {
+          "type": "list",
+          "ordered": false,
+          "items": [
+            {
+              "content": "<strong>Config subsystem overhaul</strong> — <code class=\"inline-code\">internal/config</code> rewritten for deterministic, low-allocation merges: <code class=\"inline-code\">LoadMerged</code> now respects <code class=\"inline-code\">FZ_CONFIG_PATH</code>/<code class=\"inline-code\">FZ_CONFIG</code> environment overrides, merges system→user→local config layers deterministically, and merges list/map fields while preserving user intent. <code class=\"inline-code\">Config.Merge</code> was hardened to merge slices (deduped, ordered), maps (non-empty overrides), and ISO/custom-args properly.",
+              "nested": []
+            },
+            {
+              "content": "<strong>Concurrent config load</strong> — multiple config files discovered by <code class=\"inline-code\">FindConfigs()</code> are loaded concurrently and merged deterministically to reduce I/O latency on large projects.",
+              "nested": []
+            },
+            {
+              "content": "<strong>Inline Bash scripts</strong> — configuration <code class=\"inline-code\">scripts</code> entries may begin with <code class=\"inline-code\">bash:</code> to include inline Bash code. <code class=\"inline-code\">fz</code> prefers the system <code class=\"inline-code\">bash</code>/<code class=\"inline-code\">sh</code> when available; if not, a small internal runner executes common commands like <code class=\"inline-code\">cd</code> and <code class=\"inline-code\">export</code> and will fall back to executing binaries directly when available.",
+              "nested": []
+            },
+            {
+              "content": "<strong>NASM fallback</strong> — when a system <code class=\"inline-code\">nasm</code> binary is not present, <code class=\"inline-code\">fz</code> now falls back to the built-in NASM-like emitter/parser so <code class=\"inline-code\">.asm</code> sources still assemble without an external dependency.",
+              "nested": []
+            },
+            {
+              "content": "<strong>Improved validation & defaults</strong> — <code class=\"inline-code\">Validate()</code> and <code class=\"inline-code\">fillDefaults()</code> now ensure safer defaults and clearer error messages for invalid modes, profiles, and isolation values.",
+              "nested": []
+            },
+            {
+              "content": "<strong>Expanded tests</strong> — new and updated unit tests for <code class=\"inline-code\">internal/config</code> covering merge semantics, ISO handling, and invalid YAML handling.",
+              "nested": []
+            },
+            {
+              "content": "<strong>Docs & examples</strong> — README extended with configuration and testing quickstart guidance (you are reading it).",
+              "nested": []
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": "<strong>Configuration Loading & Merge Semantics</strong>"
+        },
+        {
+          "type": "list",
+          "ordered": false,
+          "items": [
+            {
+              "content": "Precedence: explicit path (CLI or <code class=\"inline-code\">FZ_CONFIG_PATH</code>/<code class=\"inline-code\">FZ_CONFIG</code>) → system config → user config → local project config. The effective configuration is the result of merging these layers in that order.",
+              "nested": []
+            },
+            {
+              "content": "Merge behavior: string scalars are overridden by later layers when non-empty; slices are concatenated with deduplication preserving earlier order; maps are merged with non-empty values overriding earlier entries; <code class=\"inline-code\">source_file</code> clears directory lists and vice-versa to avoid ambiguous scan behavior.",
+              "nested": []
+            },
+            {
+              "content": "Useful environment variables:",
+              "nested": []
+            }
+          ]
+        },
+        {
+          "type": "code",
+          "language": "bash",
+          "content": "export FZ_CONFIG_PATH=/etc/fz/project.yaml   # explicit config path takes precedence\nexport FZ_CONFIG=~/.fz.yaml                  # alternative env var supported"
+        },
+        {
+          "type": "list",
+          "ordered": false,
+          "items": [
+            {
+              "content": "API notes: <code class=\"inline-code\">Load(path)</code> parses a single YAML file and runs <code class=\"inline-code\">expand()</code> + <code class=\"inline-code\">Validate()</code>; <code class=\"inline-code\">LoadMerged()</code> handles discovery and merging. Use <code class=\"inline-code\">DefaultConfigPath()</code> to find the local config file name used by <code class=\"inline-code\">fz</code>.",
+              "nested": []
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": "<strong>Testing & Contributing — Quickstart</strong>"
+        },
+        {
+          "type": "list",
+          "ordered": false,
+          "items": [
+            {
+              "content": "Run package tests quickly:",
+              "nested": []
+            }
+          ]
+        },
+        {
+          "type": "code",
+          "language": "bash",
+          "content": "# package under test (example)\ngo test ./internal/config\n\n# run full test suite (may take longer)\ngo test ./..."
+        },
+        {
+          "type": "list",
+          "ordered": false,
+          "items": [
+            {
+              "content": "Run a specific test (example):",
+              "nested": []
+            }
+          ]
+        },
+        {
+          "type": "code",
+          "language": "bash",
+          "content": "go test -run TestMerge ./internal/config"
+        },
+        {
+          "type": "list",
+          "ordered": false,
+          "items": [
+            {
+              "content": "Benchmarks and profiling:",
+              "nested": []
+            }
+          ]
+        },
+        {
+          "type": "code",
+          "language": "bash",
+          "content": "go test -bench . -benchmem ./internal/..."
+        },
+        {
+          "type": "list",
+          "ordered": false,
+          "items": [
+            {
+              "content": "Contributing notes:",
+              "nested": [
+                {
+                  "type": "list",
+                  "ordered": false,
+                  "items": [
+                    {
+                      "content": "Follow <code class=\"inline-code\">golangci-lint</code> style and run the test suite before opening PRs.",
+                      "nested": []
+                    },
+                    {
+                      "content": "Use <code class=\"inline-code\">fz contribute</code> to generate <code class=\"inline-code\">CONTRIBUTING_USER.md</code> with environment diagnostics.",
+                      "nested": []
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
         }
       ]
     },
@@ -3482,6 +3631,32 @@
           ]
         },
         {
+          "type": "paragraph",
+          "content": "ForgeZero now supports <code class=\"inline-code\">cache_mode</code> in project config. Valid values:"
+        },
+        {
+          "type": "list",
+          "ordered": false,
+          "items": [
+            {
+              "content": "<code class=\"inline-code\">disk</code> — default on-disk caching in <code class=\"inline-code\">.fz_cache/</code>",
+              "nested": []
+            },
+            {
+              "content": "<code class=\"inline-code\">ram</code> — keep compiled object cache in memory only; avoids disk writes for ephemeral or conditional cache builds",
+              "nested": []
+            },
+            {
+              "content": "<code class=\"inline-code\">off</code> — disable the cache entirely",
+              "nested": []
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": "The <code class=\"inline-code\">-no-cache</code> flag also forces cache mode to <code class=\"inline-code\">off</code>."
+        },
+        {
           "type": "table",
           "headers": [
             "File size",
@@ -3841,6 +4016,12 @@
               "Disable build cache"
             ],
             [
+              "<code class=\"inline-code\">cache_mode</code>",
+              "string",
+              "<code class=\"inline-code\">disk</code>",
+              "Build cache mode: <code class=\"inline-code\">disk</code>, <code class=\"inline-code\">ram</code>, or <code class=\"inline-code\">off</code>. <code class=\"inline-code\">ram</code> stores object cache in memory only, <code class=\"inline-code\">off</code> disables caching."
+            ],
+            [
               "<code class=\"inline-code\">sanitize</code>",
               "bool",
               "<code class=\"inline-code\">true</code>",
@@ -3972,7 +4153,7 @@
         {
           "type": "code",
           "language": "yaml",
-          "content": "# fz.yaml\n\nsource_dirs:\n  - kernel\n  - libc\n  - drivers\n\noutput: forgeos.elf\nformat: elf64\n\nprofile: balanced\n# target: arm-linux-gnueabihf\n# backend: zig\n# reproducible: true\n\nmode: raw\ndebug: true\nverbose: false\nkeep_obj: true\nno_cache: false\njobs: 0\n\nsanitize: true\nstrict: false\n\nexclude:\n  - \"test_*\"\n  - \"*/legacy/\"\n  - \"*.tmp\"\n\ninclude:\n  - \"*.asm\"\n  - \"*.c\"\n  - \"*.cpp\"\n  - \"*.m\"\n  - \"*.glo\"\n  - \"*.s\"\n\nlibs:\n  - gcc\n  - m\n\nflags:\n  asm:\n    - -DDEBUG_BUILD\n    - -I./include\n  cc:\n    - -O2\n    - -march=native\n    - -ffreestanding\n  ld:\n    - -T\n    - linker.ld\n\nignore_file: .myfzignore"
+          "content": "# fz.yaml\n\nsource_dirs:\n  - kernel\n  - libc\n  - drivers\n\noutput: forgeos.elf\nformat: elf64\n\nprofile: balanced\n# target: arm-linux-gnueabihf\n# backend: zig\n# reproducible: true\n\nmode: raw\ndebug: true\nverbose: false\nkeep_obj: true\nno_cache: false\ncache_mode: disk\njobs: 0\n\nsanitize: true\nstrict: false\n\nexclude:\n  - \"test_*\"\n  - \"*/legacy/\"\n  - \"*.tmp\"\n\ninclude:\n  - \"*.asm\"\n  - \"*.c\"\n  - \"*.cpp\"\n  - \"*.m\"\n  - \"*.glo\"\n  - \"*.s\"\n\nlibs:\n  - gcc\n  - m\n\nflags:\n  asm:\n    - -DDEBUG_BUILD\n    - -I./include\n  cc:\n    - -O2\n    - -march=native\n    - -ffreestanding\n  ld:\n    - -T\n    - linker.ld\n\nignore_file: .myfzignore"
         }
       ]
     },
@@ -6624,12 +6805,12 @@
       "blocks": [
         {
           "type": "paragraph",
-          "content": "ForgeZero is released under the <strong>GNU General Public License v3.0 (GPLv3)</strong>."
+          "content": "ForgeZero is released under the <strong>GPLv3 License</strong>."
         },
         {
           "type": "code",
           "language": "text",
-          "content": "GNU GENERAL PUBLIC LICENSE\nVersion 3, 29 June 2007\n\nCopyright (c) AlexVoste\n\nThis program is free software: you can redistribute it and/or modify\nit under the terms of the GNU General Public License as published by\nthe Free Software Foundation, either version 3 of the License, or\n(at your option) any later version.\n\nThis program is distributed in the hope that it will be useful,\nbut WITHOUT ANY WARRANTY; without even the implied warranty of\nMERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\nGNU General Public License for more details.\n\nYou should have received a copy of the GNU General Public License\nalong with this program.  If not, see <https://www.gnu.org/licenses/>."
+          "content": "\n * Copyright (c) 2026 ForgeZero-cli\n *\n * This program is free software: you can redistribute it and/or modify\n * it under the terms of the GNU General Public License as published by\n * the Free Software Foundation, either version 3 of the License, or\n * (at your option) any later version.\n *\n * This program is distributed in the hope that it will be useful,\n * but WITHOUT ANY WARRANTY; without even the implied warranty of\n * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n * GNU General Public License for more details.\n *\n * You should have received a copy of the GNU General Public License\n * along with this program.  If not, see <https://www.gnu.org/licenses/>."
         },
         {
           "type": "paragraph",
@@ -6651,7 +6832,7 @@
             {
               "type": "alert",
               "variant": "note",
-              "content": "<strong>Version:</strong> 5.1.0 &nbsp;·&nbsp; <strong>Language:</strong> Go &nbsp;·&nbsp; <strong>License:</strong> GPLv3 &nbsp;·&nbsp; <strong>Platform:</strong> Linux · Windows · macOS"
+              "content": "<strong>Version:</strong> 5.3.0 &nbsp;·&nbsp; <strong>Language:</strong> Go &nbsp;·&nbsp; <strong>License:</strong> GPLv3 &nbsp;·&nbsp; <strong>Platform:</strong> Linux · Windows · macOS"
             },
             {
               "type": "paragraph",
@@ -7323,6 +7504,55 @@
       "text": "ForgeZero is intentionally lightweight — a single statically compiled Go binary with no runtime dependencies beyond the standard assembler/compiler toolchain."
     },
     {
+      "id": "overview-p-28",
+      "title": "1. Overview",
+      "slug": "overview",
+      "type": "content",
+      "text": "What's new in v5.2.0:"
+    },
+    {
+      "id": "overview-p-29",
+      "title": "1. Overview",
+      "slug": "overview",
+      "type": "content",
+      "text": "Configuration Loading & Merge Semantics"
+    },
+    {
+      "id": "overview-code-30",
+      "title": "1. Overview",
+      "slug": "overview",
+      "type": "code",
+      "text": "export FZ_CONFIG_PATH=/etc/fz/project.yaml   # explicit config path takes precedence\nexport FZ_CONFIG=~/.fz.yaml                  # alternative env va"
+    },
+    {
+      "id": "overview-p-31",
+      "title": "1. Overview",
+      "slug": "overview",
+      "type": "content",
+      "text": "Testing & Contributing — Quickstart"
+    },
+    {
+      "id": "overview-code-32",
+      "title": "1. Overview",
+      "slug": "overview",
+      "type": "code",
+      "text": "# package under test (example)\ngo test ./internal/config\n\n# run full test suite (may take longer)\ngo test ./..."
+    },
+    {
+      "id": "overview-code-33",
+      "title": "1. Overview",
+      "slug": "overview",
+      "type": "code",
+      "text": "go test -run TestMerge ./internal/config"
+    },
+    {
+      "id": "overview-code-34",
+      "title": "1. Overview",
+      "slug": "overview",
+      "type": "code",
+      "text": "go test -bench . -benchmem ./internal/..."
+    },
+    {
       "id": "requirements",
       "title": "2. Requirements",
       "slug": "requirements",
@@ -7354,21 +7584,21 @@
       "text": "2. Requirements — Cross-compilation tools (optional)"
     },
     {
-      "id": "requirements-p-32",
+      "id": "requirements-p-39",
       "title": "2. Requirements",
       "slug": "requirements",
       "type": "content",
       "text": "When using -target , fz looks for prefixed toolchain binaries on your PATH :"
     },
     {
-      "id": "requirements-p-33",
+      "id": "requirements-p-40",
       "title": "2. Requirements",
       "slug": "requirements",
       "type": "content",
       "text": "Install cross-compilers via your package manager (e.g. sudo apt install gcc-arm-linux-gnueabihf )."
     },
     {
-      "id": "requirements-p-34",
+      "id": "requirements-p-41",
       "title": "2. Requirements",
       "slug": "requirements",
       "type": "content",
@@ -7391,7 +7621,7 @@
       "text": "2. Requirements — Go version (build from source only)"
     },
     {
-      "id": "requirements-p-37",
+      "id": "requirements-p-44",
       "title": "2. Requirements",
       "slug": "requirements",
       "type": "content",
@@ -7413,105 +7643,105 @@
       "text": "3. Installation — 3.1 Linux — Debian / Ubuntu"
     },
     {
-      "id": "installation-p-40",
+      "id": "installation-p-47",
       "title": "3. Installation",
       "slug": "installation",
       "type": "content",
       "text": "Install system dependencies:"
     },
     {
-      "id": "installation-code-41",
+      "id": "installation-code-48",
       "title": "3. Installation",
       "slug": "installation",
       "type": "code",
       "text": "sudo apt update\nsudo apt install -y nasm gcc binutils git"
     },
     {
-      "id": "installation-p-42",
+      "id": "installation-p-49",
       "title": "3. Installation",
       "slug": "installation",
       "type": "content",
       "text": "Install Clang (required for Objective-C; optional for -strict mode):"
     },
     {
-      "id": "installation-code-43",
+      "id": "installation-code-50",
       "title": "3. Installation",
       "slug": "installation",
       "type": "code",
       "text": "sudo apt install -y clang"
     },
     {
-      "id": "installation-p-44",
+      "id": "installation-p-51",
       "title": "3. Installation",
       "slug": "installation",
       "type": "content",
       "text": "Install cross-compilation toolchain (optional):"
     },
     {
-      "id": "installation-code-45",
+      "id": "installation-code-52",
       "title": "3. Installation",
       "slug": "installation",
       "type": "code",
       "text": "sudo apt install -y gcc-arm-linux-gnueabihf\nsudo apt install -y gcc-aarch64-linux-gnu\nsudo apt install -y gcc-riscv64-linux-gnu"
     },
     {
-      "id": "installation-p-46",
+      "id": "installation-p-53",
       "title": "3. Installation",
       "slug": "installation",
       "type": "content",
       "text": "Install Zig (optional, for -zig backend):"
     },
     {
-      "id": "installation-code-47",
+      "id": "installation-code-54",
       "title": "3. Installation",
       "slug": "installation",
       "type": "code",
       "text": "wget https://ziglang.org/download/0.13.0/zig-linux-x86_64-0.13.0.tar.xz\ntar -xf zig-linux-x86_64-0.13.0.tar.xz\nsudo mv zig-linux-x86_64-0.13.0 /opt/zi"
     },
     {
-      "id": "installation-p-48",
+      "id": "installation-p-55",
       "title": "3. Installation",
       "slug": "installation",
       "type": "content",
       "text": "Install FASM (optional, for .fasm files):"
     },
     {
-      "id": "installation-code-49",
+      "id": "installation-code-56",
       "title": "3. Installation",
       "slug": "installation",
       "type": "code",
       "text": "wget https://flatassembler.net/fasm-1.73.32.tgz\ntar -xzf fasm-1.73.32.tgz\nsudo cp fasm/fasm /usr/local/bin/\nchmod +x /usr/local/bin/fasm"
     },
     {
-      "id": "installation-p-50",
+      "id": "installation-p-57",
       "title": "3. Installation",
       "slug": "installation",
       "type": "content",
       "text": "Install ForgeZero via Go:"
     },
     {
-      "id": "installation-code-51",
+      "id": "installation-code-58",
       "title": "3. Installation",
       "slug": "installation",
       "type": "code",
       "text": "go install github.com/forgezero-cli/ForgeZero/cmd/fz@latest"
     },
     {
-      "id": "installation-p-52",
+      "id": "installation-p-59",
       "title": "3. Installation",
       "slug": "installation",
       "type": "content",
       "text": "Ensure ~/go/bin is on your PATH :"
     },
     {
-      "id": "installation-code-53",
+      "id": "installation-code-60",
       "title": "3. Installation",
       "slug": "installation",
       "type": "code",
       "text": "echo 'export PATH=\"$PATH:$(go env GOPATH)/bin\"' >> ~/.bashrc\nsource ~/.bashrc"
     },
     {
-      "id": "installation-code-54",
+      "id": "installation-code-61",
       "title": "3. Installation",
       "slug": "installation",
       "type": "code",
@@ -7526,35 +7756,35 @@
       "text": "3. Installation — 3.2 Linux — Fedora / RHEL / CentOS"
     },
     {
-      "id": "installation-p-56",
+      "id": "installation-p-63",
       "title": "3. Installation",
       "slug": "installation",
       "type": "content",
       "text": "Install system dependencies:"
     },
     {
-      "id": "installation-code-57",
+      "id": "installation-code-64",
       "title": "3. Installation",
       "slug": "installation",
       "type": "code",
       "text": "# Fedora\nsudo dnf install -y nasm gcc binutils clang git\n\n# RHEL / CentOS — enable EPEL first for nasm\nsudo dnf install -y epel-release\nsudo dnf insta"
     },
     {
-      "id": "installation-p-58",
+      "id": "installation-p-65",
       "title": "3. Installation",
       "slug": "installation",
       "type": "content",
       "text": "Install Zig (optional):"
     },
     {
-      "id": "installation-code-59",
+      "id": "installation-code-66",
       "title": "3. Installation",
       "slug": "installation",
       "type": "code",
       "text": "wget https://ziglang.org/download/0.13.0/zig-linux-x86_64-0.13.0.tar.xz\ntar -xf zig-linux-x86_64-0.13.0.tar.xz\nsudo mv zig-linux-x86_64-0.13.0 /opt/zi"
     },
     {
-      "id": "installation-code-60",
+      "id": "installation-code-67",
       "title": "3. Installation",
       "slug": "installation",
       "type": "code",
@@ -7569,21 +7799,21 @@
       "text": "3. Installation — 3.3 Linux — Arch Linux / Manjaro"
     },
     {
-      "id": "installation-p-62",
+      "id": "installation-p-69",
       "title": "3. Installation",
       "slug": "installation",
       "type": "content",
       "text": "Install system dependencies:"
     },
     {
-      "id": "installation-code-63",
+      "id": "installation-code-70",
       "title": "3. Installation",
       "slug": "installation",
       "type": "code",
       "text": "sudo pacman -S --noconfirm nasm gcc binutils clang git zig\n\n# FASM is available in the AUR\nyay -S fasm"
     },
     {
-      "id": "installation-code-64",
+      "id": "installation-code-71",
       "title": "3. Installation",
       "slug": "installation",
       "type": "code",
@@ -7598,21 +7828,21 @@
       "text": "3. Installation — 3.4 Linux — openSUSE"
     },
     {
-      "id": "installation-p-66",
+      "id": "installation-p-73",
       "title": "3. Installation",
       "slug": "installation",
       "type": "content",
       "text": "Install system dependencies:"
     },
     {
-      "id": "installation-code-67",
+      "id": "installation-code-74",
       "title": "3. Installation",
       "slug": "installation",
       "type": "code",
       "text": "sudo zypper install -y nasm gcc binutils clang git"
     },
     {
-      "id": "installation-code-68",
+      "id": "installation-code-75",
       "title": "3. Installation",
       "slug": "installation",
       "type": "code",
@@ -7627,63 +7857,63 @@
       "text": "3. Installation — 3.5 macOS"
     },
     {
-      "id": "installation-p-70",
+      "id": "installation-p-77",
       "title": "3. Installation",
       "slug": "installation",
       "type": "content",
       "text": "macOS support is in progress. The following setup works for most use cases today."
     },
     {
-      "id": "installation-p-71",
+      "id": "installation-p-78",
       "title": "3. Installation",
       "slug": "installation",
       "type": "content",
       "text": "Install Homebrew (if not already installed):"
     },
     {
-      "id": "installation-code-72",
+      "id": "installation-code-79",
       "title": "3. Installation",
       "slug": "installation",
       "type": "code",
       "text": "/bin/bash -c \"$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)\""
     },
     {
-      "id": "installation-p-73",
+      "id": "installation-p-80",
       "title": "3. Installation",
       "slug": "installation",
       "type": "content",
       "text": "Install dependencies:"
     },
     {
-      "id": "installation-code-74",
+      "id": "installation-code-81",
       "title": "3. Installation",
       "slug": "installation",
       "type": "code",
       "text": "brew install nasm gcc go git zig"
     },
     {
-      "id": "installation-code-75",
+      "id": "installation-code-82",
       "title": "3. Installation",
       "slug": "installation",
       "type": "code",
       "text": "go install github.com/forgezero-cli/ForgeZero/cmd/fz@latest"
     },
     {
-      "id": "installation-p-76",
+      "id": "installation-p-83",
       "title": "3. Installation",
       "slug": "installation",
       "type": "content",
       "text": "Add Go's bin directory to your shell profile:"
     },
     {
-      "id": "installation-code-77",
+      "id": "installation-code-84",
       "title": "3. Installation",
       "slug": "installation",
       "type": "code",
       "text": "echo 'export PATH=\"$PATH:$(go env GOPATH)/bin\"' >> ~/.zshrc\nsource ~/.zshrc"
     },
     {
-      "id": "installation-code-78",
+      "id": "installation-code-85",
       "title": "3. Installation",
       "slug": "installation",
       "type": "code",
@@ -7698,14 +7928,14 @@
       "text": "3. Installation — 3.6 Windows"
     },
     {
-      "id": "installation-p-80",
+      "id": "installation-p-87",
       "title": "3. Installation",
       "slug": "installation",
       "type": "content",
       "text": "As of v3.1.0 Aegis , ForgeZero ships a first-class native Windows filesystem backend ( internal/fs.Windows ) and Windows-specific atomic rename retry logic. As of v4.1.0 Citadel , platform-specific sy"
     },
     {
-      "id": "installation-p-81",
+      "id": "installation-p-88",
       "title": "3. Installation",
       "slug": "installation",
       "type": "content",
@@ -7720,7 +7950,7 @@
       "text": "3. Installation — Option A — WSL2 (Recommended)"
     },
     {
-      "id": "installation-code-83",
+      "id": "installation-code-90",
       "title": "3. Installation",
       "slug": "installation",
       "type": "code",
@@ -7735,126 +7965,126 @@
       "text": "3. Installation — Option B — Native Windows (Experimental)"
     },
     {
-      "id": "installation-p-85",
+      "id": "installation-p-92",
       "title": "3. Installation",
       "slug": "installation",
       "type": "content",
       "text": "Native Windows support requires manual toolchain setup via MSYS2."
     },
     {
-      "id": "installation-p-86",
+      "id": "installation-p-93",
       "title": "3. Installation",
       "slug": "installation",
       "type": "content",
       "text": "Step 1 — Install MSYS2:"
     },
     {
-      "id": "installation-p-87",
+      "id": "installation-p-94",
       "title": "3. Installation",
       "slug": "installation",
       "type": "content",
       "text": "Download and run the installer from msys2.org . After installation, open the MSYS2 MinGW 64-bit terminal and run:"
     },
     {
-      "id": "installation-code-88",
+      "id": "installation-code-95",
       "title": "3. Installation",
       "slug": "installation",
       "type": "code",
       "text": "pacman -Syu\npacman -S mingw-w64-x86_64-gcc mingw-w64-x86_64-binutils mingw-w64-x86_64-clang git"
     },
     {
-      "id": "installation-p-89",
+      "id": "installation-p-96",
       "title": "3. Installation",
       "slug": "installation",
       "type": "content",
       "text": "Step 2 — Install NASM for Windows:"
     },
     {
-      "id": "installation-p-90",
+      "id": "installation-p-97",
       "title": "3. Installation",
       "slug": "installation",
       "type": "content",
       "text": "Download the Windows installer from nasm.us . Run it and note the installation path (e.g. C:\\Program Files\\NASM )."
     },
     {
-      "id": "installation-p-91",
+      "id": "installation-p-98",
       "title": "3. Installation",
       "slug": "installation",
       "type": "content",
       "text": "Step 3 — Add tools to your PATH:"
     },
     {
-      "id": "installation-p-92",
+      "id": "installation-p-99",
       "title": "3. Installation",
       "slug": "installation",
       "type": "content",
       "text": "Open System Properties → Advanced → Environment Variables . Add the following to the Path variable:"
     },
     {
-      "id": "installation-code-93",
+      "id": "installation-code-100",
       "title": "3. Installation",
       "slug": "installation",
       "type": "code",
       "text": "C:\\msys64\\mingw64\\bin\nC:\\Program Files\\NASM\nC:\\Users\\<YourName>\\go\\bin"
     },
     {
-      "id": "installation-p-94",
+      "id": "installation-p-101",
       "title": "3. Installation",
       "slug": "installation",
       "type": "content",
       "text": "Step 4 — Install Go for Windows:"
     },
     {
-      "id": "installation-p-95",
+      "id": "installation-p-102",
       "title": "3. Installation",
       "slug": "installation",
       "type": "content",
       "text": "Download from go.dev/dl and run the installer."
     },
     {
-      "id": "installation-p-96",
+      "id": "installation-p-103",
       "title": "3. Installation",
       "slug": "installation",
       "type": "content",
       "text": "Step 5 — Install ForgeZero:"
     },
     {
-      "id": "installation-p-97",
+      "id": "installation-p-104",
       "title": "3. Installation",
       "slug": "installation",
       "type": "content",
       "text": "Open Command Prompt or PowerShell :"
     },
     {
-      "id": "installation-code-98",
+      "id": "installation-code-105",
       "title": "3. Installation",
       "slug": "installation",
       "type": "code",
       "text": "go install github.com/forgezero-cli/ForgeZero/cmd/fz@latest"
     },
     {
-      "id": "installation-p-99",
+      "id": "installation-p-106",
       "title": "3. Installation",
       "slug": "installation",
       "type": "content",
       "text": "Or build from source:"
     },
     {
-      "id": "installation-code-100",
+      "id": "installation-code-107",
       "title": "3. Installation",
       "slug": "installation",
       "type": "code",
       "text": "git clone https://github.com/forgezero-cli/ForgeZero.git\ncd ForgeZero\ngo build -o fz.exe ./cmd/fz/main.go"
     },
     {
-      "id": "installation-p-101",
+      "id": "installation-p-108",
       "title": "3. Installation",
       "slug": "installation",
       "type": "content",
       "text": "Move fz.exe to a directory on your PATH ."
     },
     {
-      "id": "installation-p-102",
+      "id": "installation-p-109",
       "title": "3. Installation",
       "slug": "installation",
       "type": "content",
@@ -7869,21 +8099,21 @@
       "text": "3. Installation — 3.7 Build from Source (All Platforms)"
     },
     {
-      "id": "installation-code-104",
+      "id": "installation-code-111",
       "title": "3. Installation",
       "slug": "installation",
       "type": "code",
       "text": "git clone https://github.com/forgezero-cli/ForgeZero.git\ncd ForgeZero\ngo build -o fz ./cmd/fz/main.go    # Linux / macOS\ngo build -o fz.exe ./cmd/fz/m"
     },
     {
-      "id": "installation-code-105",
+      "id": "installation-code-112",
       "title": "3. Installation",
       "slug": "installation",
       "type": "code",
       "text": "go test ./...\ngo test ./internal/... -cover"
     },
     {
-      "id": "installation-code-106",
+      "id": "installation-code-113",
       "title": "3. Installation",
       "slug": "installation",
       "type": "code",
@@ -7898,28 +8128,28 @@
       "text": "3. Installation — 3.8 Go Install"
     },
     {
-      "id": "installation-p-108",
+      "id": "installation-p-115",
       "title": "3. Installation",
       "slug": "installation",
       "type": "content",
       "text": "The simplest method if Go is already configured:"
     },
     {
-      "id": "installation-code-109",
+      "id": "installation-code-116",
       "title": "3. Installation",
       "slug": "installation",
       "type": "code",
       "text": "go install github.com/forgezero-cli/ForgeZero/cmd/fz@latest"
     },
     {
-      "id": "installation-p-110",
+      "id": "installation-p-117",
       "title": "3. Installation",
       "slug": "installation",
       "type": "content",
       "text": "The binary lands in $GOPATH/bin . Verify:"
     },
     {
-      "id": "installation-code-111",
+      "id": "installation-code-118",
       "title": "3. Installation",
       "slug": "installation",
       "type": "code",
@@ -7933,301 +8163,301 @@
       "text": "4. Quick Start"
     },
     {
-      "id": "quick-start-p-113",
+      "id": "quick-start-p-120",
       "title": "4. Quick Start",
       "slug": "quick-start",
       "type": "content",
       "text": "Assemble a NASM file:"
     },
     {
-      "id": "quick-start-code-114",
+      "id": "quick-start-code-121",
       "title": "4. Quick Start",
       "slug": "quick-start",
       "type": "code",
       "text": "fz -asm hello.asm\n./hello"
     },
     {
-      "id": "quick-start-code-115",
+      "id": "quick-start-code-122",
       "title": "4. Quick Start",
       "slug": "quick-start",
       "type": "code",
       "text": "fz -cc main.c\n./main"
     },
     {
-      "id": "quick-start-code-116",
+      "id": "quick-start-code-123",
       "title": "4. Quick Start",
       "slug": "quick-start",
       "type": "code",
       "text": "fz -cc main.cpp\n./main"
     },
     {
-      "id": "quick-start-p-117",
+      "id": "quick-start-p-124",
       "title": "4. Quick Start",
       "slug": "quick-start",
       "type": "content",
       "text": "Compile an Objective-C file:"
     },
     {
-      "id": "quick-start-code-118",
+      "id": "quick-start-code-125",
       "title": "4. Quick Start",
       "slug": "quick-start",
       "type": "code",
       "text": "fz -cc main.m\n./main"
     },
     {
-      "id": "quick-start-p-119",
+      "id": "quick-start-p-126",
       "title": "4. Quick Start",
       "slug": "quick-start",
       "type": "content",
       "text": "Compile a Gloria file:"
     },
     {
-      "id": "quick-start-code-120",
+      "id": "quick-start-code-127",
       "title": "4. Quick Start",
       "slug": "quick-start",
       "type": "code",
       "text": "fz -gloria main.glo\n./main"
     },
     {
-      "id": "quick-start-p-121",
+      "id": "quick-start-p-128",
       "title": "4. Quick Start",
       "slug": "quick-start",
       "type": "content",
       "text": "Build an entire directory:"
     },
     {
-      "id": "quick-start-code-122",
+      "id": "quick-start-code-129",
       "title": "4. Quick Start",
       "slug": "quick-start",
       "type": "code",
       "text": "fz -dir ./src\n./src"
     },
     {
-      "id": "quick-start-p-123",
+      "id": "quick-start-p-130",
       "title": "4. Quick Start",
       "slug": "quick-start",
       "type": "content",
       "text": "Initialize a new project:"
     },
     {
-      "id": "quick-start-code-124",
+      "id": "quick-start-code-131",
       "title": "4. Quick Start",
       "slug": "quick-start",
       "type": "code",
       "text": "fz -init"
     },
     {
-      "id": "quick-start-p-125",
+      "id": "quick-start-p-132",
       "title": "4. Quick Start",
       "slug": "quick-start",
       "type": "content",
       "text": "Build with a profile:"
     },
     {
-      "id": "quick-start-code-126",
+      "id": "quick-start-code-133",
       "title": "4. Quick Start",
       "slug": "quick-start",
       "type": "code",
       "text": "fz -p performance -cc main.c\nfz -profile power-saver -dir ./src"
     },
     {
-      "id": "quick-start-p-127",
+      "id": "quick-start-p-134",
       "title": "4. Quick Start",
       "slug": "quick-start",
       "type": "content",
       "text": "Build with cross-compilation:"
     },
     {
-      "id": "quick-start-code-128",
+      "id": "quick-start-code-135",
       "title": "4. Quick Start",
       "slug": "quick-start",
       "type": "code",
       "text": "fz -cc main.c -target arm-linux-gnueabihf"
     },
     {
-      "id": "quick-start-p-129",
+      "id": "quick-start-p-136",
       "title": "4. Quick Start",
       "slug": "quick-start",
       "type": "content",
       "text": "Build with Zig backend (no extra toolchain needed):"
     },
     {
-      "id": "quick-start-code-130",
+      "id": "quick-start-code-137",
       "title": "4. Quick Start",
       "slug": "quick-start",
       "type": "code",
       "text": "fz -cc main.c -zig -target aarch64-linux-musl"
     },
     {
-      "id": "quick-start-p-131",
+      "id": "quick-start-p-138",
       "title": "4. Quick Start",
       "slug": "quick-start",
       "type": "content",
       "text": "Direct linker invocation (v4.1.0 — bypasses compiler validation):"
     },
     {
-      "id": "quick-start-code-132",
+      "id": "quick-start-code-139",
       "title": "4. Quick Start",
       "slug": "quick-start",
       "type": "code",
       "text": "fz -asm boot.asm -ld -out boot.elf"
     },
     {
-      "id": "quick-start-p-133",
+      "id": "quick-start-p-140",
       "title": "4. Quick Start",
       "slug": "quick-start",
       "type": "content",
       "text": "Generate LSP compilation database:"
     },
     {
-      "id": "quick-start-code-134",
+      "id": "quick-start-code-141",
       "title": "4. Quick Start",
       "slug": "quick-start",
       "type": "code",
       "text": "fz -compile-commands"
     },
     {
-      "id": "quick-start-p-135",
+      "id": "quick-start-p-142",
       "title": "4. Quick Start",
       "slug": "quick-start",
       "type": "content",
       "text": "Build a static library:"
     },
     {
-      "id": "quick-start-code-136",
+      "id": "quick-start-code-143",
       "title": "4. Quick Start",
       "slug": "quick-start",
       "type": "code",
       "text": "fz -dir ./src -type static -lib mylib"
     },
     {
-      "id": "quick-start-p-137",
+      "id": "quick-start-p-144",
       "title": "4. Quick Start",
       "slug": "quick-start",
       "type": "content",
       "text": "Build a shared library:"
     },
     {
-      "id": "quick-start-code-138",
+      "id": "quick-start-code-145",
       "title": "4. Quick Start",
       "slug": "quick-start",
       "type": "code",
       "text": "fz -cc mylib.c -shared -o libmylib.so"
     },
     {
-      "id": "quick-start-p-139",
+      "id": "quick-start-p-146",
       "title": "4. Quick Start",
       "slug": "quick-start",
       "type": "content",
       "text": "Add a package dependency:"
     },
     {
-      "id": "quick-start-code-140",
+      "id": "quick-start-code-147",
       "title": "4. Quick Start",
       "slug": "quick-start",
       "type": "code",
       "text": "fz pm add github.com/me/my-lib"
     },
     {
-      "id": "quick-start-p-141",
+      "id": "quick-start-p-148",
       "title": "4. Quick Start",
       "slug": "quick-start",
       "type": "content",
       "text": "Generate a Software Bill of Materials:"
     },
     {
-      "id": "quick-start-code-142",
+      "id": "quick-start-code-149",
       "title": "4. Quick Start",
       "slug": "quick-start",
       "type": "code",
       "text": "fz sbom"
     },
     {
-      "id": "quick-start-p-143",
+      "id": "quick-start-p-150",
       "title": "4. Quick Start",
       "slug": "quick-start",
       "type": "content",
       "text": "Run the security audit:"
     },
     {
-      "id": "quick-start-code-144",
+      "id": "quick-start-code-151",
       "title": "4. Quick Start",
       "slug": "quick-start",
       "type": "code",
       "text": "fz audit"
     },
     {
-      "id": "quick-start-code-145",
+      "id": "quick-start-code-152",
       "title": "4. Quick Start",
       "slug": "quick-start",
       "type": "code",
       "text": "fz -dir ./src --reproducible"
     },
     {
-      "id": "quick-start-p-146",
+      "id": "quick-start-p-153",
       "title": "4. Quick Start",
       "slug": "quick-start",
       "type": "content",
       "text": "Verify source tree integrity:"
     },
     {
-      "id": "quick-start-code-147",
+      "id": "quick-start-code-154",
       "title": "4. Quick Start",
       "slug": "quick-start",
       "type": "code",
       "text": "fz verify"
     },
     {
-      "id": "quick-start-code-148",
+      "id": "quick-start-code-155",
       "title": "4. Quick Start",
       "slug": "quick-start",
       "type": "code",
       "text": "fz bench"
     },
     {
-      "id": "quick-start-p-149",
+      "id": "quick-start-p-156",
       "title": "4. Quick Start",
       "slug": "quick-start",
       "type": "content",
       "text": "Generate contributor guidance:"
     },
     {
-      "id": "quick-start-code-150",
+      "id": "quick-start-code-157",
       "title": "4. Quick Start",
       "slug": "quick-start",
       "type": "code",
       "text": "fz contribute"
     },
     {
-      "id": "quick-start-p-151",
+      "id": "quick-start-p-158",
       "title": "4. Quick Start",
       "slug": "quick-start",
       "type": "content",
       "text": "Build for WebAssembly (WASI, via Zig):"
     },
     {
-      "id": "quick-start-code-152",
+      "id": "quick-start-code-159",
       "title": "4. Quick Start",
       "slug": "quick-start",
       "type": "code",
       "text": "fz -cc main.c -zig -target wasm32-wasi -out main.wasm"
     },
     {
-      "id": "quick-start-p-153",
+      "id": "quick-start-p-160",
       "title": "4. Quick Start",
       "slug": "quick-start",
       "type": "content",
       "text": "Build multiple directories (v1.5.0):"
     },
     {
-      "id": "quick-start-code-154",
+      "id": "quick-start-code-161",
       "title": "4. Quick Start",
       "slug": "quick-start",
       "type": "code",
       "text": "# .fz.yaml\nsource_dirs:\n  - kernel\n  - libc\n  - drivers\noutput: myos"
     },
     {
-      "id": "quick-start-code-155",
+      "id": "quick-start-code-162",
       "title": "4. Quick Start",
       "slug": "quick-start",
       "type": "code",
@@ -8241,7 +8471,7 @@
       "text": "5. Supported Languages & Extensions"
     },
     {
-      "id": "supported-languages-extensions-p-157",
+      "id": "supported-languages-extensions-p-164",
       "title": "5. Supported Languages & Extensions",
       "slug": "supported-languages-extensions",
       "type": "content",
@@ -8263,14 +8493,14 @@
       "text": "6. Build Modes — 6.1 Single File Mode"
     },
     {
-      "id": "build-modes-p-160",
+      "id": "build-modes-p-167",
       "title": "6. Build Modes",
       "slug": "build-modes",
       "type": "content",
       "text": "Compiles and links a single source file into a binary."
     },
     {
-      "id": "build-modes-code-161",
+      "id": "build-modes-code-168",
       "title": "6. Build Modes",
       "slug": "build-modes",
       "type": "code",
@@ -8285,28 +8515,28 @@
       "text": "6. Build Modes — 6.2 Directory Mode"
     },
     {
-      "id": "build-modes-p-163",
+      "id": "build-modes-p-170",
       "title": "6. Build Modes",
       "slug": "build-modes",
       "type": "content",
       "text": "Recursively scans a directory for all supported source files, compiles each to a uniquely named object file, then links everything into a single binary."
     },
     {
-      "id": "build-modes-code-164",
+      "id": "build-modes-code-171",
       "title": "6. Build Modes",
       "slug": "build-modes",
       "type": "code",
       "text": "fz -dir ./src"
     },
     {
-      "id": "build-modes-p-165",
+      "id": "build-modes-p-172",
       "title": "6. Build Modes",
       "slug": "build-modes",
       "type": "content",
       "text": "Object file naming — names are derived from the full relative path to prevent collisions across subdirectories:"
     },
     {
-      "id": "build-modes-p-166",
+      "id": "build-modes-p-173",
       "title": "6. Build Modes",
       "slug": "build-modes",
       "type": "content",
@@ -8321,49 +8551,49 @@
       "text": "6. Build Modes — 6.3 Configuration File Mode"
     },
     {
-      "id": "build-modes-p-168",
+      "id": "build-modes-p-175",
       "title": "6. Build Modes",
       "slug": "build-modes",
       "type": "content",
       "text": "ForgeZero automatically searches the working directory for a config file in this order:"
     },
     {
-      "id": "build-modes-p-169",
+      "id": "build-modes-p-176",
       "title": "6. Build Modes",
       "slug": "build-modes",
       "type": "content",
       "text": "Run without any flags to use the config:"
     },
     {
-      "id": "build-modes-code-170",
+      "id": "build-modes-code-177",
       "title": "6. Build Modes",
       "slug": "build-modes",
       "type": "code",
       "text": "fz"
     },
     {
-      "id": "build-modes-p-171",
+      "id": "build-modes-p-178",
       "title": "6. Build Modes",
       "slug": "build-modes",
       "type": "content",
       "text": "Use -config to specify a path explicitly:"
     },
     {
-      "id": "build-modes-code-172",
+      "id": "build-modes-code-179",
       "title": "6. Build Modes",
       "slug": "build-modes",
       "type": "code",
       "text": "fz -config ./configs/release.yaml"
     },
     {
-      "id": "build-modes-p-173",
+      "id": "build-modes-p-180",
       "title": "6. Build Modes",
       "slug": "build-modes",
       "type": "content",
       "text": "CLI flags always take precedence over config file values."
     },
     {
-      "id": "build-modes-p-174",
+      "id": "build-modes-p-181",
       "title": "6. Build Modes",
       "slug": "build-modes",
       "type": "content",
@@ -8385,14 +8615,14 @@
       "text": "7. CLI Reference — Synopsis"
     },
     {
-      "id": "cli-reference-code-177",
+      "id": "cli-reference-code-184",
       "title": "7. CLI Reference",
       "slug": "cli-reference",
       "type": "code",
       "text": "fz [options]"
     },
     {
-      "id": "cli-reference-p-178",
+      "id": "cli-reference-p-185",
       "title": "7. CLI Reference",
       "slug": "cli-reference",
       "type": "content",
@@ -8446,7 +8676,7 @@
       "text": "8. Build Profiles (`-profile` / `-p`)"
     },
     {
-      "id": "build-profiles-profile-p-p-185",
+      "id": "build-profiles-profile-p-p-192",
       "title": "8. Build Profiles (`-profile` / `-p`)",
       "slug": "build-profiles-profile-p",
       "type": "content",
@@ -8469,7 +8699,7 @@
       "text": "8. Build Profiles (`-profile` / `-p`) — Usage"
     },
     {
-      "id": "build-profiles-profile-p-code-188",
+      "id": "build-profiles-profile-p-code-195",
       "title": "8. Build Profiles (`-profile` / `-p`)",
       "slug": "build-profiles-profile-p",
       "type": "code",
@@ -8484,14 +8714,14 @@
       "text": "8. Build Profiles (`-profile` / `-p`) — Persistence"
     },
     {
-      "id": "build-profiles-profile-p-p-190",
+      "id": "build-profiles-profile-p-p-197",
       "title": "8. Build Profiles (`-profile` / `-p`)",
       "slug": "build-profiles-profile-p",
       "type": "content",
       "text": "The active profile is written to ~/.config/fz/.profile.config on each invocation. Subsequent calls to fz without -profile or -p will use the last persisted profile. To reset to the default ( balanced "
     },
     {
-      "id": "build-profiles-profile-p-code-191",
+      "id": "build-profiles-profile-p-code-198",
       "title": "8. Build Profiles (`-profile` / `-p`)",
       "slug": "build-profiles-profile-p",
       "type": "code",
@@ -8506,21 +8736,21 @@
       "text": "8. Build Profiles (`-profile` / `-p`) — Interaction with other flags"
     },
     {
-      "id": "build-profiles-profile-p-p-193",
+      "id": "build-profiles-profile-p-p-200",
       "title": "8. Build Profiles (`-profile` / `-p`)",
       "slug": "build-profiles-profile-p",
       "type": "content",
       "text": "Flags that directly override profile-managed settings take precedence over the profile:"
     },
     {
-      "id": "build-profiles-profile-p-code-194",
+      "id": "build-profiles-profile-p-code-201",
       "title": "8. Build Profiles (`-profile` / `-p`)",
       "slug": "build-profiles-profile-p",
       "type": "code",
       "text": "# Profile sets -j to all cores, but -j 2 overrides it\nfz -p performance -dir ./src -j 2"
     },
     {
-      "id": "build-profiles-profile-p-p-195",
+      "id": "build-profiles-profile-p-p-202",
       "title": "8. Build Profiles (`-profile` / `-p`)",
       "slug": "build-profiles-profile-p",
       "type": "content",
@@ -8535,14 +8765,14 @@
       "text": "8. Build Profiles (`-profile` / `-p`) — Profile in configuration file"
     },
     {
-      "id": "build-profiles-profile-p-code-197",
+      "id": "build-profiles-profile-p-code-204",
       "title": "8. Build Profiles (`-profile` / `-p`)",
       "slug": "build-profiles-profile-p",
       "type": "code",
       "text": "# .fz.yaml\nprofile: performance"
     },
     {
-      "id": "build-profiles-profile-p-p-198",
+      "id": "build-profiles-profile-p-p-205",
       "title": "8. Build Profiles (`-profile` / `-p`)",
       "slug": "build-profiles-profile-p",
       "type": "content",
@@ -8556,7 +8786,7 @@
       "text": "9. Linking Modes"
     },
     {
-      "id": "linking-modes-p-200",
+      "id": "linking-modes-p-207",
       "title": "9. Linking Modes",
       "slug": "linking-modes",
       "type": "content",
@@ -8571,14 +8801,14 @@
       "text": "9. Linking Modes — `auto` (default)"
     },
     {
-      "id": "linking-modes-p-202",
+      "id": "linking-modes-p-209",
       "title": "9. Linking Modes",
       "slug": "linking-modes",
       "type": "content",
       "text": "ForgeZero tries linkers in sequence until one succeeds:"
     },
     {
-      "id": "linking-modes-p-203",
+      "id": "linking-modes-p-210",
       "title": "9. Linking Modes",
       "slug": "linking-modes",
       "type": "content",
@@ -8593,14 +8823,14 @@
       "text": "9. Linking Modes — `c` — Force GCC / Clang"
     },
     {
-      "id": "linking-modes-code-205",
+      "id": "linking-modes-code-212",
       "title": "9. Linking Modes",
       "slug": "linking-modes",
       "type": "code",
       "text": "fz -asm program.asm -mode c\nfz -cc main.c -mode c"
     },
     {
-      "id": "linking-modes-p-206",
+      "id": "linking-modes-p-213",
       "title": "9. Linking Modes",
       "slug": "linking-modes",
       "type": "content",
@@ -8615,14 +8845,14 @@
       "text": "9. Linking Modes — `raw` — Force LD"
     },
     {
-      "id": "linking-modes-code-208",
+      "id": "linking-modes-code-215",
       "title": "9. Linking Modes",
       "slug": "linking-modes",
       "type": "code",
       "text": "fz -asm kernel.asm -mode raw -out kernel.bin"
     },
     {
-      "id": "linking-modes-p-209",
+      "id": "linking-modes-p-216",
       "title": "9. Linking Modes",
       "slug": "linking-modes",
       "type": "content",
@@ -8637,14 +8867,14 @@
       "text": "9. Linking Modes — Direct Linker Invocation (`-ld`, v4.1.0)"
     },
     {
-      "id": "linking-modes-code-211",
+      "id": "linking-modes-code-218",
       "title": "9. Linking Modes",
       "slug": "linking-modes",
       "type": "code",
       "text": "fz -asm boot.asm -ld -out boot.elf"
     },
     {
-      "id": "linking-modes-p-212",
+      "id": "linking-modes-p-219",
       "title": "9. Linking Modes",
       "slug": "linking-modes",
       "type": "content",
@@ -8666,21 +8896,21 @@
       "text": "10. C Compilation — 10.1 Strict Warning Flags"
     },
     {
-      "id": "c-compilation-p-215",
+      "id": "c-compilation-p-222",
       "title": "10. C Compilation",
       "slug": "c-compilation",
       "type": "content",
       "text": "Every .c file compiled by fz receives these flags unconditionally:"
     },
     {
-      "id": "c-compilation-code-216",
+      "id": "c-compilation-code-223",
       "title": "10. C Compilation",
       "slug": "c-compilation",
       "type": "code",
       "text": "-Wall -Wextra -Werror -Wpedantic -Wshadow -Wconversion"
     },
     {
-      "id": "c-compilation-p-217",
+      "id": "c-compilation-p-224",
       "title": "10. C Compilation",
       "slug": "c-compilation",
       "type": "content",
@@ -8695,42 +8925,42 @@
       "text": "10. C Compilation — 10.2 Sanitizers"
     },
     {
-      "id": "c-compilation-p-219",
+      "id": "c-compilation-p-226",
       "title": "10. C Compilation",
       "slug": "c-compilation",
       "type": "content",
       "text": "Standard mode (default — always enabled unless -sanitize=false ):"
     },
     {
-      "id": "c-compilation-code-220",
+      "id": "c-compilation-code-227",
       "title": "10. C Compilation",
       "slug": "c-compilation",
       "type": "code",
       "text": "-fsanitize=address\n-fsanitize=undefined"
     },
     {
-      "id": "c-compilation-p-221",
+      "id": "c-compilation-p-228",
       "title": "10. C Compilation",
       "slug": "c-compilation",
       "type": "content",
       "text": "Strict mode ( -strict ):"
     },
     {
-      "id": "c-compilation-code-222",
+      "id": "c-compilation-code-229",
       "title": "10. C Compilation",
       "slug": "c-compilation",
       "type": "code",
       "text": "-fsanitize=address\n-fsanitize=undefined\n-fsanitize-address-use-after-return=always    (Clang only)\n-fsanitize-address-use-after-scope"
     },
     {
-      "id": "c-compilation-p-223",
+      "id": "c-compilation-p-230",
       "title": "10. C Compilation",
       "slug": "c-compilation",
       "type": "content",
       "text": "Disable sanitizers (release build / benchmarking):"
     },
     {
-      "id": "c-compilation-code-224",
+      "id": "c-compilation-code-231",
       "title": "10. C Compilation",
       "slug": "c-compilation",
       "type": "code",
@@ -8744,49 +8974,49 @@
       "text": "11. C++ Compilation"
     },
     {
-      "id": "c-compilation-11-p-226",
+      "id": "c-compilation-11-p-233",
       "title": "11. C++ Compilation",
       "slug": "c-compilation-11",
       "type": "content",
       "text": "Added in v1.7.0 . ForgeZero compiles .cpp , .cc , and .cxx files using g++ or clang++ (or zig c++ when -zig is active). The same strict warning flags applied to C are applied identically to C++:"
     },
     {
-      "id": "c-compilation-11-code-227",
+      "id": "c-compilation-11-code-234",
       "title": "11. C++ Compilation",
       "slug": "c-compilation-11",
       "type": "code",
       "text": "-Wall -Wextra -Werror -Wpedantic -Wshadow -Wconversion"
     },
     {
-      "id": "c-compilation-11-p-228",
+      "id": "c-compilation-11-p-235",
       "title": "11. C++ Compilation",
       "slug": "c-compilation-11",
       "type": "content",
       "text": "Sanitizers are also enabled by default for C++ in the same way as C."
     },
     {
-      "id": "c-compilation-11-code-229",
+      "id": "c-compilation-11-code-236",
       "title": "11. C++ Compilation",
       "slug": "c-compilation-11",
       "type": "code",
       "text": "fz -cc main.cpp\nfz -cc main.cc\nfz -cc main.cxx"
     },
     {
-      "id": "c-compilation-11-p-230",
+      "id": "c-compilation-11-p-237",
       "title": "11. C++ Compilation",
       "slug": "c-compilation-11",
       "type": "content",
       "text": "Mixed C and C++ project directory:"
     },
     {
-      "id": "c-compilation-11-code-231",
+      "id": "c-compilation-11-code-238",
       "title": "11. C++ Compilation",
       "slug": "c-compilation-11",
       "type": "code",
       "text": "fz -dir ./src"
     },
     {
-      "id": "c-compilation-11-p-232",
+      "id": "c-compilation-11-p-239",
       "title": "11. C++ Compilation",
       "slug": "c-compilation-11",
       "type": "content",
@@ -8800,7 +9030,7 @@
       "text": "12. Objective-C Compilation"
     },
     {
-      "id": "objective-c-compilation-p-234",
+      "id": "objective-c-compilation-p-241",
       "title": "12. Objective-C Compilation",
       "slug": "objective-c-compilation",
       "type": "content",
@@ -8823,7 +9053,7 @@
       "text": "12. Objective-C Compilation — Usage"
     },
     {
-      "id": "objective-c-compilation-code-237",
+      "id": "objective-c-compilation-code-244",
       "title": "12. Objective-C Compilation",
       "slug": "objective-c-compilation",
       "type": "code",
@@ -8853,7 +9083,7 @@
       "text": "13. Gloria Language — 13.1 Overview"
     },
     {
-      "id": "gloria-language-p-241",
+      "id": "gloria-language-p-248",
       "title": "13. Gloria Language",
       "slug": "gloria-language",
       "type": "content",
@@ -8868,14 +9098,14 @@
       "text": "13. Gloria Language — 13.2 Syntax Reference"
     },
     {
-      "id": "gloria-language-code-243",
+      "id": "gloria-language-code-250",
       "title": "13. Gloria Language",
       "slug": "gloria-language",
       "type": "code",
       "text": "fn main() {\n    let a = 10\n    let b = 20\n    let c = a + b\n    print(\"result computed\")\n}"
     },
     {
-      "id": "gloria-language-p-244",
+      "id": "gloria-language-p-251",
       "title": "13. Gloria Language",
       "slug": "gloria-language",
       "type": "content",
@@ -8890,28 +9120,28 @@
       "text": "13. Gloria Language — 13.3 Control Flow"
     },
     {
-      "id": "gloria-language-p-246",
+      "id": "gloria-language-p-253",
       "title": "13. Gloria Language",
       "slug": "gloria-language",
       "type": "content",
       "text": "Evaluates a variable. If the variable is non-zero, the body executes."
     },
     {
-      "id": "gloria-language-code-247",
+      "id": "gloria-language-code-254",
       "title": "13. Gloria Language",
       "slug": "gloria-language",
       "type": "code",
       "text": "let x = 1\nif x {\n    print(\"x is set\")\n}"
     },
     {
-      "id": "gloria-language-p-248",
+      "id": "gloria-language-p-255",
       "title": "13. Gloria Language",
       "slug": "gloria-language",
       "type": "content",
       "text": "Iterates while the condition variable is non-zero. Supports = , += , and -= assignment and builtin calls inside the loop body."
     },
     {
-      "id": "gloria-language-code-249",
+      "id": "gloria-language-code-256",
       "title": "13. Gloria Language",
       "slug": "gloria-language",
       "type": "code",
@@ -8926,56 +9156,56 @@
       "text": "13. Gloria Language — 13.4 Memory Access & I/O Ports"
     },
     {
-      "id": "gloria-language-p-251",
+      "id": "gloria-language-p-258",
       "title": "13. Gloria Language",
       "slug": "gloria-language",
       "type": "content",
       "text": "peek(address) — reads a 16-bit value from the specified memory address. The address may be an immediate integer literal or a variable."
     },
     {
-      "id": "gloria-language-code-252",
+      "id": "gloria-language-code-259",
       "title": "13. Gloria Language",
       "slug": "gloria-language",
       "type": "code",
       "text": "let val = peek(0xB8000)\nlet addr = 0x1000\nlet x = peek(addr)"
     },
     {
-      "id": "gloria-language-p-253",
+      "id": "gloria-language-p-260",
       "title": "13. Gloria Language",
       "slug": "gloria-language",
       "type": "content",
       "text": "poke(address, value) — writes a 16-bit value to the specified memory address. Both arguments may be immediates or variables."
     },
     {
-      "id": "gloria-language-code-254",
+      "id": "gloria-language-code-261",
       "title": "13. Gloria Language",
       "slug": "gloria-language",
       "type": "code",
       "text": "poke(0xB8000, 0x0741)   // write 'A' with white-on-black to VGA\nlet pos = 2\npoke(pos, 0x0742)"
     },
     {
-      "id": "gloria-language-p-255",
+      "id": "gloria-language-p-262",
       "title": "13. Gloria Language",
       "slug": "gloria-language",
       "type": "content",
       "text": "in8(port) — reads one byte from an x86-64 I/O port. The return value is zero-extended to 64 bits."
     },
     {
-      "id": "gloria-language-code-256",
+      "id": "gloria-language-code-263",
       "title": "13. Gloria Language",
       "slug": "gloria-language",
       "type": "code",
       "text": "let scancode = in8(0x60)"
     },
     {
-      "id": "gloria-language-p-257",
+      "id": "gloria-language-p-264",
       "title": "13. Gloria Language",
       "slug": "gloria-language",
       "type": "content",
       "text": "out8(port, value) — writes one byte to an x86-64 I/O port."
     },
     {
-      "id": "gloria-language-code-258",
+      "id": "gloria-language-code-265",
       "title": "13. Gloria Language",
       "slug": "gloria-language",
       "type": "code",
@@ -8990,21 +9220,21 @@
       "text": "13. Gloria Language — 13.5 VGA Framebuffer Output"
     },
     {
-      "id": "gloria-language-p-260",
+      "id": "gloria-language-p-267",
       "title": "13. Gloria Language",
       "slug": "gloria-language",
       "type": "content",
       "text": "When Gloria is compiled in bare-metal (kernel) mode, print() writes directly to the VGA text-mode framebuffer at 0xB8000 using green text ( attribute byte 0x0A )."
     },
     {
-      "id": "gloria-language-code-261",
+      "id": "gloria-language-code-268",
       "title": "13. Gloria Language",
       "slug": "gloria-language",
       "type": "code",
       "text": "fn main() {\n    print(\"Booting...\\n\")\n    print(\"OK\\t[done]\")\n}"
     },
     {
-      "id": "gloria-language-p-262",
+      "id": "gloria-language-p-269",
       "title": "13. Gloria Language",
       "slug": "gloria-language",
       "type": "content",
@@ -9019,14 +9249,14 @@
       "text": "13. Gloria Language — 13.6 Register Constants"
     },
     {
-      "id": "gloria-language-p-264",
+      "id": "gloria-language-p-271",
       "title": "13. Gloria Language",
       "slug": "gloria-language",
       "type": "content",
       "text": "Named constants for all 16 x86-64 general-purpose registers are available to Gloria programs and are used internally by the HADES codegen layer for clarity and correctness:"
     },
     {
-      "id": "gloria-language-p-265",
+      "id": "gloria-language-p-272",
       "title": "13. Gloria Language",
       "slug": "gloria-language",
       "type": "content",
@@ -9041,14 +9271,14 @@
       "text": "13. Gloria Language — 13.7 Compilation Pipeline"
     },
     {
-      "id": "gloria-language-code-267",
+      "id": "gloria-language-code-274",
       "title": "13. Gloria Language",
       "slug": "gloria-language",
       "type": "code",
       "text": "fz -gloria main.glo\n./main\n\nfz -gloria main.glo -verbose\nfz -gloria main.glo -out kernel.elf"
     },
     {
-      "id": "gloria-language-p-268",
+      "id": "gloria-language-p-275",
       "title": "13. Gloria Language",
       "slug": "gloria-language",
       "type": "content",
@@ -9062,7 +9292,7 @@
       "text": "14. Cross-Compilation"
     },
     {
-      "id": "cross-compilation-p-270",
+      "id": "cross-compilation-p-277",
       "title": "14. Cross-Compilation",
       "slug": "cross-compilation",
       "type": "content",
@@ -9077,7 +9307,7 @@
       "text": "14. Cross-Compilation — Basic Usage"
     },
     {
-      "id": "cross-compilation-code-272",
+      "id": "cross-compilation-code-279",
       "title": "14. Cross-Compilation",
       "slug": "cross-compilation",
       "type": "code",
@@ -9092,14 +9322,14 @@
       "text": "14. Cross-Compilation — How It Works"
     },
     {
-      "id": "cross-compilation-p-274",
+      "id": "cross-compilation-p-281",
       "title": "14. Cross-Compilation",
       "slug": "cross-compilation",
       "type": "content",
       "text": "Without -zig , fz constructs prefixed compiler and linker names by prepending the triple:"
     },
     {
-      "id": "cross-compilation-p-275",
+      "id": "cross-compilation-p-282",
       "title": "14. Cross-Compilation",
       "slug": "cross-compilation",
       "type": "content",
@@ -9114,7 +9344,7 @@
       "text": "14. Cross-Compilation — Installing Cross-Compilers (without Zig)"
     },
     {
-      "id": "cross-compilation-code-277",
+      "id": "cross-compilation-code-284",
       "title": "14. Cross-Compilation",
       "slug": "cross-compilation",
       "type": "code",
@@ -9129,7 +9359,7 @@
       "text": "14. Cross-Compilation — Cross-Compilation with a Config File"
     },
     {
-      "id": "cross-compilation-code-279",
+      "id": "cross-compilation-code-286",
       "title": "14. Cross-Compilation",
       "slug": "cross-compilation",
       "type": "code",
@@ -9143,49 +9373,49 @@
       "text": "15. Static Library Mode"
     },
     {
-      "id": "static-library-mode-p-281",
+      "id": "static-library-mode-p-288",
       "title": "15. Static Library Mode",
       "slug": "static-library-mode",
       "type": "content",
       "text": "Added in v1.8.0 . ForgeZero can produce static libraries ( .a archives) instead of linked executables."
     },
     {
-      "id": "static-library-mode-code-282",
+      "id": "static-library-mode-code-289",
       "title": "15. Static Library Mode",
       "slug": "static-library-mode",
       "type": "code",
       "text": "fz -dir ./src -type static -lib mylib"
     },
     {
-      "id": "static-library-mode-p-283",
+      "id": "static-library-mode-p-290",
       "title": "15. Static Library Mode",
       "slug": "static-library-mode",
       "type": "content",
       "text": "This compiles all source files in ./src/ into object files, then archives them into libmylib.a using ar ."
     },
     {
-      "id": "static-library-mode-p-284",
+      "id": "static-library-mode-p-291",
       "title": "15. Static Library Mode",
       "slug": "static-library-mode",
       "type": "content",
       "text": "The output file is always named lib .a ."
     },
     {
-      "id": "static-library-mode-code-285",
+      "id": "static-library-mode-code-292",
       "title": "15. Static Library Mode",
       "slug": "static-library-mode",
       "type": "code",
       "text": "source_dirs:\n  - src\ntype: static\nlib: mylib"
     },
     {
-      "id": "static-library-mode-p-286",
+      "id": "static-library-mode-p-293",
       "title": "15. Static Library Mode",
       "slug": "static-library-mode",
       "type": "content",
       "text": "Cross-compilation with static library:"
     },
     {
-      "id": "static-library-mode-code-287",
+      "id": "static-library-mode-code-294",
       "title": "15. Static Library Mode",
       "slug": "static-library-mode",
       "type": "code",
@@ -9199,21 +9429,21 @@
       "text": "16. Shared Library Mode"
     },
     {
-      "id": "shared-library-mode-p-289",
+      "id": "shared-library-mode-p-296",
       "title": "16. Shared Library Mode",
       "slug": "shared-library-mode",
       "type": "content",
       "text": "Added in v2.0.0 NEXUS ."
     },
     {
-      "id": "shared-library-mode-code-290",
+      "id": "shared-library-mode-code-297",
       "title": "16. Shared Library Mode",
       "slug": "shared-library-mode",
       "type": "code",
       "text": "fz -cc mylib.c -shared -o libmylib.so\nfz -cc mylib.c -shared -cc-flag \"-O2 -fPIC\" -ld-flag \"-pthread\" -o libmylib.so"
     },
     {
-      "id": "shared-library-mode-p-291",
+      "id": "shared-library-mode-p-298",
       "title": "16. Shared Library Mode",
       "slug": "shared-library-mode",
       "type": "content",
@@ -9227,7 +9457,7 @@
       "text": "17. Package Manager (fz pm)"
     },
     {
-      "id": "package-manager-fz-pm-p-293",
+      "id": "package-manager-fz-pm-p-300",
       "title": "17. Package Manager (fz pm)",
       "slug": "package-manager-fz-pm",
       "type": "content",
@@ -9250,14 +9480,14 @@
       "text": "17. Package Manager (fz pm) — fz pm add"
     },
     {
-      "id": "package-manager-fz-pm-code-296",
+      "id": "package-manager-fz-pm-code-303",
       "title": "17. Package Manager (fz pm)",
       "slug": "package-manager-fz-pm",
       "type": "code",
       "text": "fz pm add github.com/me/my-lib\nfz pm add github.com/me/my-lib@v1.2.3"
     },
     {
-      "id": "package-manager-fz-pm-p-297",
+      "id": "package-manager-fz-pm-p-304",
       "title": "17. Package Manager (fz pm)",
       "slug": "package-manager-fz-pm",
       "type": "content",
@@ -9272,14 +9502,14 @@
       "text": "17. Package Manager (fz pm) — fz pm remove"
     },
     {
-      "id": "package-manager-fz-pm-code-299",
+      "id": "package-manager-fz-pm-code-306",
       "title": "17. Package Manager (fz pm)",
       "slug": "package-manager-fz-pm",
       "type": "code",
       "text": "fz pm remove my-lib"
     },
     {
-      "id": "package-manager-fz-pm-p-300",
+      "id": "package-manager-fz-pm-p-307",
       "title": "17. Package Manager (fz pm)",
       "slug": "package-manager-fz-pm",
       "type": "content",
@@ -9294,14 +9524,14 @@
       "text": "17. Package Manager (fz pm) — fz pm list"
     },
     {
-      "id": "package-manager-fz-pm-code-302",
+      "id": "package-manager-fz-pm-code-309",
       "title": "17. Package Manager (fz pm)",
       "slug": "package-manager-fz-pm",
       "type": "code",
       "text": "fz pm list"
     },
     {
-      "id": "package-manager-fz-pm-p-303",
+      "id": "package-manager-fz-pm-p-310",
       "title": "17. Package Manager (fz pm)",
       "slug": "package-manager-fz-pm",
       "type": "content",
@@ -9316,14 +9546,14 @@
       "text": "17. Package Manager (fz pm) — fz pm update"
     },
     {
-      "id": "package-manager-fz-pm-code-305",
+      "id": "package-manager-fz-pm-code-312",
       "title": "17. Package Manager (fz pm)",
       "slug": "package-manager-fz-pm",
       "type": "code",
       "text": "fz pm update"
     },
     {
-      "id": "package-manager-fz-pm-p-306",
+      "id": "package-manager-fz-pm-p-313",
       "title": "17. Package Manager (fz pm)",
       "slug": "package-manager-fz-pm",
       "type": "content",
@@ -9338,14 +9568,14 @@
       "text": "17. Package Manager (fz pm) — fz pm catalog"
     },
     {
-      "id": "package-manager-fz-pm-code-308",
+      "id": "package-manager-fz-pm-code-315",
       "title": "17. Package Manager (fz pm)",
       "slug": "package-manager-fz-pm",
       "type": "code",
       "text": "fz pm catalog"
     },
     {
-      "id": "package-manager-fz-pm-p-309",
+      "id": "package-manager-fz-pm-p-316",
       "title": "17. Package Manager (fz pm)",
       "slug": "package-manager-fz-pm",
       "type": "content",
@@ -9360,14 +9590,14 @@
       "text": "17. Package Manager (fz pm) — fz pm search"
     },
     {
-      "id": "package-manager-fz-pm-code-311",
+      "id": "package-manager-fz-pm-code-318",
       "title": "17. Package Manager (fz pm)",
       "slug": "package-manager-fz-pm",
       "type": "code",
       "text": "fz pm search iot\nfz pm search crypto"
     },
     {
-      "id": "package-manager-fz-pm-p-312",
+      "id": "package-manager-fz-pm-p-319",
       "title": "17. Package Manager (fz pm)",
       "slug": "package-manager-fz-pm",
       "type": "content",
@@ -9382,21 +9612,21 @@
       "text": "17. Package Manager (fz pm) — fz pm install"
     },
     {
-      "id": "package-manager-fz-pm-code-314",
+      "id": "package-manager-fz-pm-code-321",
       "title": "17. Package Manager (fz pm)",
       "slug": "package-manager-fz-pm",
       "type": "code",
       "text": "fz pm install esp-idf"
     },
     {
-      "id": "package-manager-fz-pm-p-315",
+      "id": "package-manager-fz-pm-p-322",
       "title": "17. Package Manager (fz pm)",
       "slug": "package-manager-fz-pm",
       "type": "content",
       "text": "Installs a named package from the catalog with BLAKE3 hash verification."
     },
     {
-      "id": "package-manager-fz-pm-p-316",
+      "id": "package-manager-fz-pm-p-323",
       "title": "17. Package Manager (fz pm)",
       "slug": "package-manager-fz-pm",
       "type": "content",
@@ -9418,28 +9648,42 @@
       "text": "18. Internal Mechanisms — 18.1 Build Cache (BLAKE3)"
     },
     {
-      "id": "internal-mechanisms-p-319",
+      "id": "internal-mechanisms-p-326",
       "title": "18. Internal Mechanisms",
       "slug": "internal-mechanisms",
       "type": "content",
       "text": "ForgeZero caches compiled object files in .fz_cache/ to skip recompilation of unchanged sources."
     },
     {
-      "id": "internal-mechanisms-p-320",
+      "id": "internal-mechanisms-p-327",
       "title": "18. Internal Mechanisms",
       "slug": "internal-mechanisms",
       "type": "content",
       "text": "Cache key computed from:"
     },
     {
-      "id": "internal-mechanisms-code-321",
+      "id": "internal-mechanisms-p-328",
+      "title": "18. Internal Mechanisms",
+      "slug": "internal-mechanisms",
+      "type": "content",
+      "text": "ForgeZero now supports cache_mode in project config. Valid values:"
+    },
+    {
+      "id": "internal-mechanisms-p-329",
+      "title": "18. Internal Mechanisms",
+      "slug": "internal-mechanisms",
+      "type": "content",
+      "text": "The -no-cache flag also forces cache mode to off ."
+    },
+    {
+      "id": "internal-mechanisms-code-330",
       "title": "18. Internal Mechanisms",
       "slug": "internal-mechanisms",
       "type": "code",
       "text": "fz -dir ./src -no-cache"
     },
     {
-      "id": "internal-mechanisms-code-322",
+      "id": "internal-mechanisms-code-331",
       "title": "18. Internal Mechanisms",
       "slug": "internal-mechanisms",
       "type": "code",
@@ -9454,28 +9698,28 @@
       "text": "18. Internal Mechanisms — 18.2 Pre-link Symbol Check"
     },
     {
-      "id": "internal-mechanisms-p-324",
+      "id": "internal-mechanisms-p-333",
       "title": "18. Internal Mechanisms",
       "slug": "internal-mechanisms",
       "type": "content",
       "text": "Before invoking the linker, fz scans all compiled object files for duplicate global symbol definitions."
     },
     {
-      "id": "internal-mechanisms-p-325",
+      "id": "internal-mechanisms-p-334",
       "title": "18. Internal Mechanisms",
       "slug": "internal-mechanisms",
       "type": "content",
       "text": "Tools used (in order of preference): nm → objdump → readelf"
     },
     {
-      "id": "internal-mechanisms-p-326",
+      "id": "internal-mechanisms-p-335",
       "title": "18. Internal Mechanisms",
       "slug": "internal-mechanisms",
       "type": "content",
       "text": "If a conflict is found, fz reports which files define the duplicate symbol and exits with code 1 ."
     },
     {
-      "id": "internal-mechanisms-code-327",
+      "id": "internal-mechanisms-code-336",
       "title": "18. Internal Mechanisms",
       "slug": "internal-mechanisms",
       "type": "code",
@@ -9490,14 +9734,14 @@
       "text": "18. Internal Mechanisms — 18.3 Watch Mode"
     },
     {
-      "id": "internal-mechanisms-code-329",
+      "id": "internal-mechanisms-code-338",
       "title": "18. Internal Mechanisms",
       "slug": "internal-mechanisms",
       "type": "code",
       "text": "fz -dir ./src -watch\nfz -asm main.asm -watch"
     },
     {
-      "id": "internal-mechanisms-p-330",
+      "id": "internal-mechanisms-p-339",
       "title": "18. Internal Mechanisms",
       "slug": "internal-mechanisms",
       "type": "content",
@@ -9512,21 +9756,21 @@
       "text": "18. Internal Mechanisms — 18.4 JSON Output"
     },
     {
-      "id": "internal-mechanisms-p-332",
+      "id": "internal-mechanisms-p-341",
       "title": "18. Internal Mechanisms",
       "slug": "internal-mechanisms",
       "type": "content",
       "text": "When -json is passed, a single JSON object is written to stdout on completion:"
     },
     {
-      "id": "internal-mechanisms-code-333",
+      "id": "internal-mechanisms-code-342",
       "title": "18. Internal Mechanisms",
       "slug": "internal-mechanisms",
       "type": "code",
       "text": "{\n  \"status\": \"success\",\n  \"exit_code\": 0,\n  \"duration_ms\": 342,\n  \"binary\": \"./src\",\n  \"source_files\": [\"src/main.asm\", \"src/utils.asm\"],\n  \"object_f"
     },
     {
-      "id": "internal-mechanisms-code-334",
+      "id": "internal-mechanisms-code-343",
       "title": "18. Internal Mechanisms",
       "slug": "internal-mechanisms",
       "type": "code",
@@ -9541,14 +9785,14 @@
       "text": "18. Internal Mechanisms — 18.5 Clean"
     },
     {
-      "id": "internal-mechanisms-code-336",
+      "id": "internal-mechanisms-code-345",
       "title": "18. Internal Mechanisms",
       "slug": "internal-mechanisms",
       "type": "code",
       "text": "fz -dir . -clean"
     },
     {
-      "id": "internal-mechanisms-p-337",
+      "id": "internal-mechanisms-p-346",
       "title": "18. Internal Mechanisms",
       "slug": "internal-mechanisms",
       "type": "content",
@@ -9563,21 +9807,21 @@
       "text": "18. Internal Mechanisms — 18.6 Parallel Builds"
     },
     {
-      "id": "internal-mechanisms-code-339",
+      "id": "internal-mechanisms-code-348",
       "title": "18. Internal Mechanisms",
       "slug": "internal-mechanisms",
       "type": "code",
       "text": "fz -dir ./src -j 4   # compile up to 4 files simultaneously\nfz -dir ./src -j 0   # auto: use all available CPU cores"
     },
     {
-      "id": "internal-mechanisms-p-340",
+      "id": "internal-mechanisms-p-349",
       "title": "18. Internal Mechanisms",
       "slug": "internal-mechanisms",
       "type": "content",
       "text": "When a build profile is active, -j is set automatically by the profile. An explicit -j flag always overrides the profile."
     },
     {
-      "id": "internal-mechanisms-p-341",
+      "id": "internal-mechanisms-p-350",
       "title": "18. Internal Mechanisms",
       "slug": "internal-mechanisms",
       "type": "content",
@@ -9592,14 +9836,14 @@
       "text": "18. Internal Mechanisms — 18.7 Interactive Shell"
     },
     {
-      "id": "internal-mechanisms-code-343",
+      "id": "internal-mechanisms-code-352",
       "title": "18. Internal Mechanisms",
       "slug": "internal-mechanisms",
       "type": "code",
       "text": "fz -shell"
     },
     {
-      "id": "internal-mechanisms-p-344",
+      "id": "internal-mechanisms-p-353",
       "title": "18. Internal Mechanisms",
       "slug": "internal-mechanisms",
       "type": "content",
@@ -9614,14 +9858,14 @@
       "text": "18. Internal Mechanisms — 18.8 Virtual Filesystem Layer (VFS)"
     },
     {
-      "id": "internal-mechanisms-p-346",
+      "id": "internal-mechanisms-p-355",
       "title": "18. Internal Mechanisms",
       "slug": "internal-mechanisms",
       "type": "content",
       "text": "All durable and security-sensitive I/O routes through the internal/fs FileSystem interface. Production code never calls os.Open , os.WriteFile , or os.Rename directly on security-sensitive paths."
     },
     {
-      "id": "internal-mechanisms-p-347",
+      "id": "internal-mechanisms-p-356",
       "title": "18. Internal Mechanisms",
       "slug": "internal-mechanisms",
       "type": "content",
@@ -9651,14 +9895,14 @@
       "text": "19. Configuration File Reference — 19.2 Multiple Source Directories"
     },
     {
-      "id": "configuration-file-reference-code-351",
+      "id": "configuration-file-reference-code-360",
       "title": "19. Configuration File Reference",
       "slug": "configuration-file-reference",
       "type": "code",
       "text": "source_dirs:\n  - kernel\n  - libc\n  - drivers\noutput: forgeos.elf\nmode: raw"
     },
     {
-      "id": "configuration-file-reference-p-352",
+      "id": "configuration-file-reference-p-361",
       "title": "19. Configuration File Reference",
       "slug": "configuration-file-reference",
       "type": "content",
@@ -9673,14 +9917,14 @@
       "text": "19. Configuration File Reference — 19.3 Explicit Source File Lists"
     },
     {
-      "id": "configuration-file-reference-code-354",
+      "id": "configuration-file-reference-code-363",
       "title": "19. Configuration File Reference",
       "slug": "configuration-file-reference",
       "type": "code",
       "text": "source_files:\n  - boot/start.asm\n  - kernel/main.c\n  - kernel/irq.c\noutput: kernel.elf\nmode: raw"
     },
     {
-      "id": "configuration-file-reference-p-355",
+      "id": "configuration-file-reference-p-364",
       "title": "19. Configuration File Reference",
       "slug": "configuration-file-reference",
       "type": "content",
@@ -9695,14 +9939,14 @@
       "text": "19. Configuration File Reference — 19.4 Include & Exclude Patterns"
     },
     {
-      "id": "configuration-file-reference-code-357",
+      "id": "configuration-file-reference-code-366",
       "title": "19. Configuration File Reference",
       "slug": "configuration-file-reference",
       "type": "code",
       "text": "exclude:\n  - \"test_*\"\n  - \"*/legacy/\"\n  - \"*.tmp\"\n\ninclude:\n  - \"*.asm\"\n  - \"*.c\""
     },
     {
-      "id": "configuration-file-reference-p-358",
+      "id": "configuration-file-reference-p-367",
       "title": "19. Configuration File Reference",
       "slug": "configuration-file-reference",
       "type": "content",
@@ -9717,7 +9961,7 @@
       "text": "19. Configuration File Reference — 19.5 Library Linking"
     },
     {
-      "id": "configuration-file-reference-code-360",
+      "id": "configuration-file-reference-code-369",
       "title": "19. Configuration File Reference",
       "slug": "configuration-file-reference",
       "type": "code",
@@ -9732,7 +9976,7 @@
       "text": "19. Configuration File Reference — 19.6 Custom Compiler & Linker Flags"
     },
     {
-      "id": "configuration-file-reference-code-362",
+      "id": "configuration-file-reference-code-371",
       "title": "19. Configuration File Reference",
       "slug": "configuration-file-reference",
       "type": "code",
@@ -9747,14 +9991,14 @@
       "text": "19. Configuration File Reference — 19.7 .fzignore File"
     },
     {
-      "id": "configuration-file-reference-p-364",
+      "id": "configuration-file-reference-p-373",
       "title": "19. Configuration File Reference",
       "slug": "configuration-file-reference",
       "type": "content",
       "text": "Works exactly like .gitignore . Evaluated after exclude patterns."
     },
     {
-      "id": "configuration-file-reference-code-365",
+      "id": "configuration-file-reference-code-374",
       "title": "19. Configuration File Reference",
       "slug": "configuration-file-reference",
       "type": "code",
@@ -9769,7 +10013,7 @@
       "text": "19. Configuration File Reference — 19.8 Full Annotated Example"
     },
     {
-      "id": "configuration-file-reference-code-367",
+      "id": "configuration-file-reference-code-376",
       "title": "19. Configuration File Reference",
       "slug": "configuration-file-reference",
       "type": "code",
@@ -9791,21 +10035,21 @@
       "text": "20. Assembler Backends — 20.1 NASM (.asm)"
     },
     {
-      "id": "assembler-backends-p-370",
+      "id": "assembler-backends-p-379",
       "title": "20. Assembler Backends",
       "slug": "assembler-backends",
       "type": "content",
       "text": "Command: nasm -felf64 -o"
     },
     {
-      "id": "assembler-backends-code-371",
+      "id": "assembler-backends-code-380",
       "title": "20. Assembler Backends",
       "slug": "assembler-backends",
       "type": "code",
       "text": "; hello.asm — print \"Hello, World!\" to stdout and exit\nsection .data\n    msg  db \"Hello, World!\", 0x0a\n    len  equ $ - msg\n\nsection .text\n    global "
     },
     {
-      "id": "assembler-backends-code-372",
+      "id": "assembler-backends-code-381",
       "title": "20. Assembler Backends",
       "slug": "assembler-backends",
       "type": "code",
@@ -9820,14 +10064,14 @@
       "text": "20. Assembler Backends — 20.2 GAS (.s / .S)"
     },
     {
-      "id": "assembler-backends-code-374",
+      "id": "assembler-backends-code-383",
       "title": "20. Assembler Backends",
       "slug": "assembler-backends",
       "type": "code",
       "text": "# hello.s — AT&T syntax\n.section .data\n    msg: .ascii \"Hello, World!\\n\"\n    len = . - msg\n\n.section .text\n    .global _start\n\n_start:\n    movq  $1,  "
     },
     {
-      "id": "assembler-backends-code-375",
+      "id": "assembler-backends-code-384",
       "title": "20. Assembler Backends",
       "slug": "assembler-backends",
       "type": "code",
@@ -9842,21 +10086,21 @@
       "text": "20. Assembler Backends — 20.3 FASM (.fasm)"
     },
     {
-      "id": "assembler-backends-p-377",
+      "id": "assembler-backends-p-386",
       "title": "20. Assembler Backends",
       "slug": "assembler-backends",
       "type": "content",
       "text": "As of v3.0.0 GLORIA , ForgeZero automatically injects format ELF64 executable when no format directive is found, and passes -dDEBUG=1 when -debug is active."
     },
     {
-      "id": "assembler-backends-code-378",
+      "id": "assembler-backends-code-387",
       "title": "20. Assembler Backends",
       "slug": "assembler-backends",
       "type": "code",
       "text": "; hello.fasm — format directive can be omitted for ELF64 targets (v3.0.0+)\nentry _start\n\nsegment readable writeable\n    msg db \"Hello, World!\", 10\n   "
     },
     {
-      "id": "assembler-backends-code-379",
+      "id": "assembler-backends-code-388",
       "title": "20. Assembler Backends",
       "slug": "assembler-backends",
       "type": "code",
@@ -9878,7 +10122,7 @@
       "text": "21. Zig Toolchain Backend — 21.1 Why Zig?"
     },
     {
-      "id": "zig-toolchain-backend-p-382",
+      "id": "zig-toolchain-backend-p-391",
       "title": "21. Zig Toolchain Backend",
       "slug": "zig-toolchain-backend",
       "type": "content",
@@ -9893,14 +10137,14 @@
       "text": "21. Zig Toolchain Backend — 21.2 Activating the Zig Backend"
     },
     {
-      "id": "zig-toolchain-backend-code-384",
+      "id": "zig-toolchain-backend-code-393",
       "title": "21. Zig Toolchain Backend",
       "slug": "zig-toolchain-backend",
       "type": "code",
       "text": "fz -cc main.c -zig\nfz -dir ./src -zig\nfz -cc main.c -zig -target aarch64-linux-musl\nfz -cc main.c -zig -target riscv64-linux-musl\nfz -cc main.c -zig -"
     },
     {
-      "id": "zig-toolchain-backend-code-385",
+      "id": "zig-toolchain-backend-code-394",
       "title": "21. Zig Toolchain Backend",
       "slug": "zig-toolchain-backend",
       "type": "code",
@@ -9923,7 +10167,7 @@
       "text": "21. Zig Toolchain Backend — 21.4 Installing Zig"
     },
     {
-      "id": "zig-toolchain-backend-code-388",
+      "id": "zig-toolchain-backend-code-397",
       "title": "21. Zig Toolchain Backend",
       "slug": "zig-toolchain-backend",
       "type": "code",
@@ -9938,28 +10182,28 @@
       "text": "21. Zig Toolchain Backend — 21.5 FASM Improvements (v3.0.0)"
     },
     {
-      "id": "zig-toolchain-backend-p-390",
+      "id": "zig-toolchain-backend-p-399",
       "title": "21. Zig Toolchain Backend",
       "slug": "zig-toolchain-backend",
       "type": "content",
       "text": "Automatic format ELF64 injection. When ForgeZero compiles a .fasm file and the file does not begin with a format directive, it automatically prepends format ELF64 executable in a temporary preprocesse"
     },
     {
-      "id": "zig-toolchain-backend-p-391",
+      "id": "zig-toolchain-backend-p-400",
       "title": "21. Zig Toolchain Backend",
       "slug": "zig-toolchain-backend",
       "type": "content",
       "text": "Debug flag pass-through. When -debug is active, -dDEBUG=1 is injected into the FASM command line and DWARF debug information is emitted."
     },
     {
-      "id": "zig-toolchain-backend-code-392",
+      "id": "zig-toolchain-backend-code-401",
       "title": "21. Zig Toolchain Backend",
       "slug": "zig-toolchain-backend",
       "type": "code",
       "text": "if defined DEBUG\n    ; print register state, extra checks\nend if"
     },
     {
-      "id": "zig-toolchain-backend-code-393",
+      "id": "zig-toolchain-backend-code-402",
       "title": "21. Zig Toolchain Backend",
       "slug": "zig-toolchain-backend",
       "type": "code",
@@ -9981,21 +10225,21 @@
       "text": "22. Supply Chain Security — 22.1 SBOM Generation (fz sbom)"
     },
     {
-      "id": "supply-chain-security-code-396",
+      "id": "supply-chain-security-code-405",
       "title": "22. Supply Chain Security",
       "slug": "supply-chain-security",
       "type": "code",
       "text": "fz sbom\nfz sbom -o /tmp/myproject-sbom.cdx.json\nfz sbom -dir ./src -o release-sbom.cdx.json"
     },
     {
-      "id": "supply-chain-security-p-397",
+      "id": "supply-chain-security-p-406",
       "title": "22. Supply Chain Security",
       "slug": "supply-chain-security",
       "type": "content",
       "text": "fz sbom generates a CycloneDX SBOM (valid JSON, importable into Dependency-Track, Grype, Syft). As of v4.1.0, SBOM artifacts are produced atomically via internal helpers, preventing partial output fil"
     },
     {
-      "id": "supply-chain-security-p-398",
+      "id": "supply-chain-security-p-407",
       "title": "22. Supply Chain Security",
       "slug": "supply-chain-security",
       "type": "content",
@@ -10010,49 +10254,49 @@
       "text": "22. Supply Chain Security — 22.2 SAST Audit Scanner (fz audit)"
     },
     {
-      "id": "supply-chain-security-code-400",
+      "id": "supply-chain-security-code-409",
       "title": "22. Supply Chain Security",
       "slug": "supply-chain-security",
       "type": "code",
       "text": "fz audit\nfz audit -dir ./src\nfz audit -json"
     },
     {
-      "id": "supply-chain-security-p-401",
+      "id": "supply-chain-security-p-410",
       "title": "22. Supply Chain Security",
       "slug": "supply-chain-security",
       "type": "content",
       "text": "Three classes of checks:"
     },
     {
-      "id": "supply-chain-security-p-402",
+      "id": "supply-chain-security-p-411",
       "title": "22. Supply Chain Security",
       "slug": "supply-chain-security",
       "type": "content",
       "text": "Check 1 — Hardcoded Secrets. Entropy-weighted regex patterns detect AWS keys, GitHub tokens, Slack tokens, generic key / secret / password / token assignments, PEM private key blocks, and plaintext co"
     },
     {
-      "id": "supply-chain-security-p-403",
+      "id": "supply-chain-security-p-412",
       "title": "22. Supply Chain Security",
       "slug": "supply-chain-security",
       "type": "content",
       "text": "Check 2 — License Compliance."
     },
     {
-      "id": "supply-chain-security-p-404",
+      "id": "supply-chain-security-p-413",
       "title": "22. Supply Chain Security",
       "slug": "supply-chain-security",
       "type": "content",
       "text": "Check 3 — Dangerous Patterns. Detects gets() , sprintf() without bounds, alloca() inside loops, format string vulnerabilities, unchecked malloc() / realloc() , chmod 777 , and curl | sh patterns."
     },
     {
-      "id": "supply-chain-security-code-405",
+      "id": "supply-chain-security-code-414",
       "title": "22. Supply Chain Security",
       "slug": "supply-chain-security",
       "type": "code",
       "text": "{\n  \"status\": \"findings\",\n  \"total\": 3,\n  \"findings\": [\n    {\n      \"type\": \"hardcoded_secret\",\n      \"severity\": \"CRITICAL\",\n      \"file\": \"src/confi"
     },
     {
-      "id": "supply-chain-security-p-406",
+      "id": "supply-chain-security-p-415",
       "title": "22. Supply Chain Security",
       "slug": "supply-chain-security",
       "type": "content",
@@ -10066,35 +10310,35 @@
       "text": "23. Reproducible Builds"
     },
     {
-      "id": "reproducible-builds-p-408",
+      "id": "reproducible-builds-p-417",
       "title": "23. Reproducible Builds",
       "slug": "reproducible-builds",
       "type": "content",
       "text": "ForgeZero eliminates all known sources of non-determinism when --reproducible is active:"
     },
     {
-      "id": "reproducible-builds-code-409",
+      "id": "reproducible-builds-code-418",
       "title": "23. Reproducible Builds",
       "slug": "reproducible-builds",
       "type": "code",
       "text": "fz -dir ./src --reproducible"
     },
     {
-      "id": "reproducible-builds-code-410",
+      "id": "reproducible-builds-code-419",
       "title": "23. Reproducible Builds",
       "slug": "reproducible-builds",
       "type": "code",
       "text": "reproducible: true"
     },
     {
-      "id": "reproducible-builds-p-411",
+      "id": "reproducible-builds-p-420",
       "title": "23. Reproducible Builds",
       "slug": "reproducible-builds",
       "type": "content",
       "text": "Verifying reproducibility:"
     },
     {
-      "id": "reproducible-builds-code-412",
+      "id": "reproducible-builds-code-421",
       "title": "23. Reproducible Builds",
       "slug": "reproducible-builds",
       "type": "code",
@@ -10108,49 +10352,49 @@
       "text": "24. Source Tree Integrity (fz verify)"
     },
     {
-      "id": "source-tree-integrity-fz-verify-code-414",
+      "id": "source-tree-integrity-fz-verify-code-423",
       "title": "24. Source Tree Integrity (fz verify)",
       "slug": "source-tree-integrity-fz-verify",
       "type": "code",
       "text": "fz verify --generate\nfz verify --generate -manifest ./release.manifest"
     },
     {
-      "id": "source-tree-integrity-fz-verify-p-415",
+      "id": "source-tree-integrity-fz-verify-p-424",
       "title": "24. Source Tree Integrity (fz verify)",
       "slug": "source-tree-integrity-fz-verify",
       "type": "content",
       "text": "The manifest is a plain text file (one BLAKE3 hex hash + relative path per line)."
     },
     {
-      "id": "source-tree-integrity-fz-verify-p-416",
+      "id": "source-tree-integrity-fz-verify-p-425",
       "title": "24. Source Tree Integrity (fz verify)",
       "slug": "source-tree-integrity-fz-verify",
       "type": "content",
       "text": "Verify against a manifest:"
     },
     {
-      "id": "source-tree-integrity-fz-verify-code-417",
+      "id": "source-tree-integrity-fz-verify-code-426",
       "title": "24. Source Tree Integrity (fz verify)",
       "slug": "source-tree-integrity-fz-verify",
       "type": "code",
       "text": "fz verify\nfz verify -manifest ./release.manifest\nfz verify --strict   # also report UNTRACKED files"
     },
     {
-      "id": "source-tree-integrity-fz-verify-p-418",
+      "id": "source-tree-integrity-fz-verify-p-427",
       "title": "24. Source Tree Integrity (fz verify)",
       "slug": "source-tree-integrity-fz-verify",
       "type": "content",
       "text": "Three categories of finding: MODIFIED , MISSING , UNTRACKED (only with --strict )."
     },
     {
-      "id": "source-tree-integrity-fz-verify-code-419",
+      "id": "source-tree-integrity-fz-verify-code-428",
       "title": "24. Source Tree Integrity (fz verify)",
       "slug": "source-tree-integrity-fz-verify",
       "type": "code",
       "text": "fz verify -manifest ./release.manifest\n# Exits 1 if any file has been tampered with"
     },
     {
-      "id": "source-tree-integrity-fz-verify-p-420",
+      "id": "source-tree-integrity-fz-verify-p-429",
       "title": "24. Source Tree Integrity (fz verify)",
       "slug": "source-tree-integrity-fz-verify",
       "type": "content",
@@ -10164,21 +10408,21 @@
       "text": "25. Build Profiler (fz bench)"
     },
     {
-      "id": "build-profiler-fz-bench-code-422",
+      "id": "build-profiler-fz-bench-code-431",
       "title": "25. Build Profiler (fz bench)",
       "slug": "build-profiler-fz-bench",
       "type": "code",
       "text": "fz bench\nfz bench -dir ./src\nfz bench -n 5\nfz bench -json"
     },
     {
-      "id": "build-profiler-fz-bench-code-423",
+      "id": "build-profiler-fz-bench-code-432",
       "title": "25. Build Profiler (fz bench)",
       "slug": "build-profiler-fz-bench",
       "type": "code",
       "text": "fz bench — ForgeZero Build Profiler\nProject: ./src   Files: 12   Mode: auto   Cache: cold\n\nPhase                       Start (ns)      Duration       "
     },
     {
-      "id": "build-profiler-fz-bench-code-424",
+      "id": "build-profiler-fz-bench-code-433",
       "title": "25. Build Profiler (fz bench)",
       "slug": "build-profiler-fz-bench",
       "type": "code",
@@ -10192,28 +10436,28 @@
       "text": "26. WebAssembly (WASM)"
     },
     {
-      "id": "webassembly-wasm-p-426",
+      "id": "webassembly-wasm-p-435",
       "title": "26. WebAssembly (WASM)",
       "slug": "webassembly-wasm",
       "type": "content",
       "text": "WASI via Zig (recommended — no extra SDK):"
     },
     {
-      "id": "webassembly-wasm-code-427",
+      "id": "webassembly-wasm-code-436",
       "title": "26. WebAssembly (WASM)",
       "slug": "webassembly-wasm",
       "type": "code",
       "text": "fz -cc main.c -zig -target wasm32-wasi -out main.wasm\nwasmtime main.wasm"
     },
     {
-      "id": "webassembly-wasm-code-428",
+      "id": "webassembly-wasm-code-437",
       "title": "26. WebAssembly (WASM)",
       "slug": "webassembly-wasm",
       "type": "code",
       "text": "source /path/to/emsdk/emsdk_env.sh\nfz -cc main.c -target wasm32-emscripten -out main.js\n# Produces main.wasm + main.js"
     },
     {
-      "id": "webassembly-wasm-code-429",
+      "id": "webassembly-wasm-code-438",
       "title": "26. WebAssembly (WASM)",
       "slug": "webassembly-wasm",
       "type": "code",
@@ -10227,14 +10471,14 @@
       "text": "27. Project Initialization"
     },
     {
-      "id": "project-initialization-code-431",
+      "id": "project-initialization-code-440",
       "title": "27. Project Initialization",
       "slug": "project-initialization",
       "type": "code",
       "text": "mkdir myproject && cd myproject\nfz -init"
     },
     {
-      "id": "project-initialization-p-432",
+      "id": "project-initialization-p-441",
       "title": "27. Project Initialization",
       "slug": "project-initialization",
       "type": "content",
@@ -10248,35 +10492,35 @@
       "text": "28. Contributor Guidance (fz contribute)"
     },
     {
-      "id": "contributor-guidance-fz-contribute-code-434",
+      "id": "contributor-guidance-fz-contribute-code-443",
       "title": "28. Contributor Guidance (fz contribute)",
       "slug": "contributor-guidance-fz-contribute",
       "type": "code",
       "text": "fz contribute"
     },
     {
-      "id": "contributor-guidance-fz-contribute-p-435",
+      "id": "contributor-guidance-fz-contribute-p-444",
       "title": "28. Contributor Guidance (fz contribute)",
       "slug": "contributor-guidance-fz-contribute",
       "type": "content",
       "text": "fz contribute generates a CONTRIBUTING_USER.md file in the current working directory. This file is intended for developers who want to contribute to a ForgeZero-built project and need a clear, environ"
     },
     {
-      "id": "contributor-guidance-fz-contribute-p-436",
+      "id": "contributor-guidance-fz-contribute-p-445",
       "title": "28. Contributor Guidance (fz contribute)",
       "slug": "contributor-guidance-fz-contribute",
       "type": "content",
       "text": "The file is populated dynamically based on the output of fz doctor and the current project's configuration:"
     },
     {
-      "id": "contributor-guidance-fz-contribute-code-437",
+      "id": "contributor-guidance-fz-contribute-code-446",
       "title": "28. Contributor Guidance (fz contribute)",
       "slug": "contributor-guidance-fz-contribute",
       "type": "code",
       "text": "fz contribute\n# Writes CONTRIBUTING_USER.md to the current directory\ncat CONTRIBUTING_USER.md"
     },
     {
-      "id": "contributor-guidance-fz-contribute-p-438",
+      "id": "contributor-guidance-fz-contribute-p-447",
       "title": "28. Contributor Guidance (fz contribute)",
       "slug": "contributor-guidance-fz-contribute",
       "type": "content",
@@ -10290,7 +10534,7 @@
       "text": "29. LSP & IDE Integration"
     },
     {
-      "id": "lsp-ide-integration-code-440",
+      "id": "lsp-ide-integration-code-449",
       "title": "29. LSP & IDE Integration",
       "slug": "lsp-ide-integration",
       "type": "code",
@@ -10304,21 +10548,21 @@
       "text": "30. Self-Update"
     },
     {
-      "id": "self-update-code-442",
+      "id": "self-update-code-451",
       "title": "30. Self-Update",
       "slug": "self-update",
       "type": "code",
       "text": "fz -update"
     },
     {
-      "id": "self-update-p-443",
+      "id": "self-update-p-452",
       "title": "30. Self-Update",
       "slug": "self-update",
       "type": "content",
       "text": "What happens: fetches the latest release binary, backs up the current binary to fz.old , installs the new one, reports version change."
     },
     {
-      "id": "self-update-code-444",
+      "id": "self-update-code-453",
       "title": "30. Self-Update",
       "slug": "self-update",
       "type": "code",
@@ -10340,7 +10584,7 @@
       "text": "31. Examples — Minimal builds"
     },
     {
-      "id": "examples-code-447",
+      "id": "examples-code-456",
       "title": "31. Examples",
       "slug": "examples",
       "type": "code",
@@ -10355,7 +10599,7 @@
       "text": "31. Examples — Initialize a new project"
     },
     {
-      "id": "examples-code-449",
+      "id": "examples-code-458",
       "title": "31. Examples",
       "slug": "examples",
       "type": "code",
@@ -10370,7 +10614,7 @@
       "text": "31. Examples — Build with a profile"
     },
     {
-      "id": "examples-code-451",
+      "id": "examples-code-460",
       "title": "31. Examples",
       "slug": "examples",
       "type": "code",
@@ -10385,7 +10629,7 @@
       "text": "31. Examples — Debug build with verbose output"
     },
     {
-      "id": "examples-code-453",
+      "id": "examples-code-462",
       "title": "31. Examples",
       "slug": "examples",
       "type": "code",
@@ -10400,7 +10644,7 @@
       "text": "31. Examples — Bare-metal / bootloader binary"
     },
     {
-      "id": "examples-code-455",
+      "id": "examples-code-464",
       "title": "31. Examples",
       "slug": "examples",
       "type": "code",
@@ -10415,7 +10659,7 @@
       "text": "31. Examples — Direct linker invocation (v4.1.0)"
     },
     {
-      "id": "examples-code-457",
+      "id": "examples-code-466",
       "title": "31. Examples",
       "slug": "examples",
       "type": "code",
@@ -10430,7 +10674,7 @@
       "text": "31. Examples — C with strict sanitizers"
     },
     {
-      "id": "examples-code-459",
+      "id": "examples-code-468",
       "title": "31. Examples",
       "slug": "examples",
       "type": "code",
@@ -10445,7 +10689,7 @@
       "text": "31. Examples — Objective-C application"
     },
     {
-      "id": "examples-code-461",
+      "id": "examples-code-470",
       "title": "31. Examples",
       "slug": "examples",
       "type": "code",
@@ -10460,7 +10704,7 @@
       "text": "31. Examples — Gloria bare-metal kernel output"
     },
     {
-      "id": "examples-code-463",
+      "id": "examples-code-472",
       "title": "31. Examples",
       "slug": "examples",
       "type": "code",
@@ -10475,7 +10719,7 @@
       "text": "31. Examples — Build a full project directory"
     },
     {
-      "id": "examples-code-465",
+      "id": "examples-code-474",
       "title": "31. Examples",
       "slug": "examples",
       "type": "code",
@@ -10490,7 +10734,7 @@
       "text": "31. Examples — Parallel build"
     },
     {
-      "id": "examples-code-467",
+      "id": "examples-code-476",
       "title": "31. Examples",
       "slug": "examples",
       "type": "code",
@@ -10505,7 +10749,7 @@
       "text": "31. Examples — Cross-compile for ARM (with system toolchain)"
     },
     {
-      "id": "examples-code-469",
+      "id": "examples-code-478",
       "title": "31. Examples",
       "slug": "examples",
       "type": "code",
@@ -10520,7 +10764,7 @@
       "text": "31. Examples — Cross-compile for ARM64 musl (Zig — no packages needed)"
     },
     {
-      "id": "examples-code-471",
+      "id": "examples-code-480",
       "title": "31. Examples",
       "slug": "examples",
       "type": "code",
@@ -10535,7 +10779,7 @@
       "text": "31. Examples — Cross-compile for RISC-V musl (v4.5.1)"
     },
     {
-      "id": "examples-code-473",
+      "id": "examples-code-482",
       "title": "31. Examples",
       "slug": "examples",
       "type": "code",
@@ -10550,7 +10794,7 @@
       "text": "31. Examples — Build a static library"
     },
     {
-      "id": "examples-code-475",
+      "id": "examples-code-484",
       "title": "31. Examples",
       "slug": "examples",
       "type": "code",
@@ -10565,7 +10809,7 @@
       "text": "31. Examples — Build a shared library"
     },
     {
-      "id": "examples-code-477",
+      "id": "examples-code-486",
       "title": "31. Examples",
       "slug": "examples",
       "type": "code",
@@ -10580,7 +10824,7 @@
       "text": "31. Examples — Package manager"
     },
     {
-      "id": "examples-code-479",
+      "id": "examples-code-488",
       "title": "31. Examples",
       "slug": "examples",
       "type": "code",
@@ -10595,7 +10839,7 @@
       "text": "31. Examples — Generate LSP compilation database"
     },
     {
-      "id": "examples-code-481",
+      "id": "examples-code-490",
       "title": "31. Examples",
       "slug": "examples",
       "type": "code",
@@ -10610,7 +10854,7 @@
       "text": "31. Examples — Build from multiple directories"
     },
     {
-      "id": "examples-code-483",
+      "id": "examples-code-492",
       "title": "31. Examples",
       "slug": "examples",
       "type": "code",
@@ -10625,7 +10869,7 @@
       "text": "31. Examples — Generate a Software Bill of Materials"
     },
     {
-      "id": "examples-code-485",
+      "id": "examples-code-494",
       "title": "31. Examples",
       "slug": "examples",
       "type": "code",
@@ -10640,7 +10884,7 @@
       "text": "31. Examples — Run the security audit"
     },
     {
-      "id": "examples-code-487",
+      "id": "examples-code-496",
       "title": "31. Examples",
       "slug": "examples",
       "type": "code",
@@ -10655,7 +10899,7 @@
       "text": "31. Examples — Reproducible build"
     },
     {
-      "id": "examples-code-489",
+      "id": "examples-code-498",
       "title": "31. Examples",
       "slug": "examples",
       "type": "code",
@@ -10670,7 +10914,7 @@
       "text": "31. Examples — Generate and verify source tree manifest"
     },
     {
-      "id": "examples-code-491",
+      "id": "examples-code-500",
       "title": "31. Examples",
       "slug": "examples",
       "type": "code",
@@ -10685,7 +10929,7 @@
       "text": "31. Examples — Profile the build"
     },
     {
-      "id": "examples-code-493",
+      "id": "examples-code-502",
       "title": "31. Examples",
       "slug": "examples",
       "type": "code",
@@ -10700,7 +10944,7 @@
       "text": "31. Examples — Generate contributor guidance"
     },
     {
-      "id": "examples-code-495",
+      "id": "examples-code-504",
       "title": "31. Examples",
       "slug": "examples",
       "type": "code",
@@ -10715,7 +10959,7 @@
       "text": "31. Examples — Reproduce the official benchmark"
     },
     {
-      "id": "examples-code-497",
+      "id": "examples-code-506",
       "title": "31. Examples",
       "slug": "examples",
       "type": "code",
@@ -10730,7 +10974,7 @@
       "text": "31. Examples — Build for WebAssembly (WASI, via Zig)"
     },
     {
-      "id": "examples-code-499",
+      "id": "examples-code-508",
       "title": "31. Examples",
       "slug": "examples",
       "type": "code",
@@ -10745,7 +10989,7 @@
       "text": "31. Examples — Build for WebAssembly (browser, via Emscripten)"
     },
     {
-      "id": "examples-code-501",
+      "id": "examples-code-510",
       "title": "31. Examples",
       "slug": "examples",
       "type": "code",
@@ -10760,7 +11004,7 @@
       "text": "31. Examples — Directory build with JSON output (CI/CD)"
     },
     {
-      "id": "examples-code-503",
+      "id": "examples-code-512",
       "title": "31. Examples",
       "slug": "examples",
       "type": "code",
@@ -10775,7 +11019,7 @@
       "text": "31. Examples — Watch mode during development"
     },
     {
-      "id": "examples-code-505",
+      "id": "examples-code-514",
       "title": "31. Examples",
       "slug": "examples",
       "type": "code",
@@ -10790,7 +11034,7 @@
       "text": "31. Examples — Disable sanitizers for release"
     },
     {
-      "id": "examples-code-507",
+      "id": "examples-code-516",
       "title": "31. Examples",
       "slug": "examples",
       "type": "code",
@@ -10805,7 +11049,7 @@
       "text": "31. Examples — Keep object files for inspection"
     },
     {
-      "id": "examples-code-509",
+      "id": "examples-code-518",
       "title": "31. Examples",
       "slug": "examples",
       "type": "code",
@@ -10820,7 +11064,7 @@
       "text": "31. Examples — Interactive shell session"
     },
     {
-      "id": "examples-code-511",
+      "id": "examples-code-520",
       "title": "31. Examples",
       "slug": "examples",
       "type": "code",
@@ -10835,7 +11079,7 @@
       "text": "31. Examples — Clean all build artifacts"
     },
     {
-      "id": "examples-code-513",
+      "id": "examples-code-522",
       "title": "31. Examples",
       "slug": "examples",
       "type": "code",
@@ -10850,7 +11094,7 @@
       "text": "31. Examples — Update fz with rollback"
     },
     {
-      "id": "examples-code-515",
+      "id": "examples-code-524",
       "title": "31. Examples",
       "slug": "examples",
       "type": "code",
@@ -10879,7 +11123,7 @@
       "text": "33. Troubleshooting — `fz: command not found`"
     },
     {
-      "id": "troubleshooting-code-519",
+      "id": "troubleshooting-code-528",
       "title": "33. Troubleshooting",
       "slug": "troubleshooting",
       "type": "code",
@@ -10894,7 +11138,7 @@
       "text": "33. Troubleshooting — `nasm: command not found`"
     },
     {
-      "id": "troubleshooting-code-521",
+      "id": "troubleshooting-code-530",
       "title": "33. Troubleshooting",
       "slug": "troubleshooting",
       "type": "code",
@@ -10909,7 +11153,7 @@
       "text": "33. Troubleshooting — `fasm: command not found`"
     },
     {
-      "id": "troubleshooting-code-523",
+      "id": "troubleshooting-code-532",
       "title": "33. Troubleshooting",
       "slug": "troubleshooting",
       "type": "code",
@@ -10924,7 +11168,7 @@
       "text": "33. Troubleshooting — `g++: command not found`"
     },
     {
-      "id": "troubleshooting-code-525",
+      "id": "troubleshooting-code-534",
       "title": "33. Troubleshooting",
       "slug": "troubleshooting",
       "type": "code",
@@ -10939,7 +11183,7 @@
       "text": "33. Troubleshooting — `clang: command not found` (Objective-C)"
     },
     {
-      "id": "troubleshooting-code-527",
+      "id": "troubleshooting-code-536",
       "title": "33. Troubleshooting",
       "slug": "troubleshooting",
       "type": "code",
@@ -10954,7 +11198,7 @@
       "text": "33. Troubleshooting — `zig: command not found`"
     },
     {
-      "id": "troubleshooting-code-529",
+      "id": "troubleshooting-code-538",
       "title": "33. Troubleshooting",
       "slug": "troubleshooting",
       "type": "code",
@@ -10969,7 +11213,7 @@
       "text": "33. Troubleshooting — Cross-compiler not found (without Zig)"
     },
     {
-      "id": "troubleshooting-code-531",
+      "id": "troubleshooting-code-540",
       "title": "33. Troubleshooting",
       "slug": "troubleshooting",
       "type": "code",
@@ -10984,28 +11228,28 @@
       "text": "33. Troubleshooting — `undefined reference to _start`"
     },
     {
-      "id": "troubleshooting-p-533",
+      "id": "troubleshooting-p-542",
       "title": "33. Troubleshooting",
       "slug": "troubleshooting",
       "type": "content",
       "text": "Define _start explicitly:"
     },
     {
-      "id": "troubleshooting-code-534",
+      "id": "troubleshooting-code-543",
       "title": "33. Troubleshooting",
       "slug": "troubleshooting",
       "type": "code",
       "text": "global _start\n_start:\n    ; ..."
     },
     {
-      "id": "troubleshooting-p-535",
+      "id": "troubleshooting-p-544",
       "title": "33. Troubleshooting",
       "slug": "troubleshooting",
       "type": "content",
       "text": "Or use the C runtime:"
     },
     {
-      "id": "troubleshooting-code-536",
+      "id": "troubleshooting-code-545",
       "title": "33. Troubleshooting",
       "slug": "troubleshooting",
       "type": "code",
@@ -11020,14 +11264,14 @@
       "text": "33. Troubleshooting — Binary crashes immediately (segfault on startup)"
     },
     {
-      "id": "troubleshooting-p-538",
+      "id": "troubleshooting-p-547",
       "title": "33. Troubleshooting",
       "slug": "troubleshooting",
       "type": "content",
       "text": "Likely -mode raw used with code referencing libc symbols. Switch to:"
     },
     {
-      "id": "troubleshooting-code-539",
+      "id": "troubleshooting-code-548",
       "title": "33. Troubleshooting",
       "slug": "troubleshooting",
       "type": "code",
@@ -11042,14 +11286,14 @@
       "text": "33. Troubleshooting — Pre-link duplicate symbol error"
     },
     {
-      "id": "troubleshooting-p-541",
+      "id": "troubleshooting-p-550",
       "title": "33. Troubleshooting",
       "slug": "troubleshooting",
       "type": "content",
       "text": "Check for conflicting global declarations. Skip the check when using weak symbols intentionally:"
     },
     {
-      "id": "troubleshooting-code-542",
+      "id": "troubleshooting-code-551",
       "title": "33. Troubleshooting",
       "slug": "troubleshooting",
       "type": "code",
@@ -11064,14 +11308,14 @@
       "text": "33. Troubleshooting — Sanitizer error at runtime"
     },
     {
-      "id": "troubleshooting-p-544",
+      "id": "troubleshooting-p-553",
       "title": "33. Troubleshooting",
       "slug": "troubleshooting",
       "type": "content",
       "text": "Fix the reported memory/UB issue. To temporarily disable:"
     },
     {
-      "id": "troubleshooting-code-545",
+      "id": "troubleshooting-code-554",
       "title": "33. Troubleshooting",
       "slug": "troubleshooting",
       "type": "code",
@@ -11086,7 +11330,7 @@
       "text": "33. Troubleshooting — Sanitizers silently disabled for WASM target"
     },
     {
-      "id": "troubleshooting-p-547",
+      "id": "troubleshooting-p-556",
       "title": "33. Troubleshooting",
       "slug": "troubleshooting",
       "type": "content",
@@ -11101,14 +11345,14 @@
       "text": "33. Troubleshooting — `fz verify` reports MODIFIED files unexpectedly"
     },
     {
-      "id": "troubleshooting-p-549",
+      "id": "troubleshooting-p-558",
       "title": "33. Troubleshooting",
       "slug": "troubleshooting",
       "type": "content",
       "text": "Re-generate the manifest from the current known-good state:"
     },
     {
-      "id": "troubleshooting-code-550",
+      "id": "troubleshooting-code-559",
       "title": "33. Troubleshooting",
       "slug": "troubleshooting",
       "type": "code",
@@ -11123,14 +11367,14 @@
       "text": "33. Troubleshooting — `fz audit` false positive on a secret pattern"
     },
     {
-      "id": "troubleshooting-p-552",
+      "id": "troubleshooting-p-561",
       "title": "33. Troubleshooting",
       "slug": "troubleshooting",
       "type": "content",
       "text": "Annotate the line with a suppression comment:"
     },
     {
-      "id": "troubleshooting-code-553",
+      "id": "troubleshooting-code-562",
       "title": "33. Troubleshooting",
       "slug": "troubleshooting",
       "type": "code",
@@ -11145,7 +11389,7 @@
       "text": "33. Troubleshooting — Build hangs / times out"
     },
     {
-      "id": "troubleshooting-code-555",
+      "id": "troubleshooting-code-564",
       "title": "33. Troubleshooting",
       "slug": "troubleshooting",
       "type": "code",
@@ -11160,7 +11404,7 @@
       "text": "33. Troubleshooting — Cache returns stale results"
     },
     {
-      "id": "troubleshooting-code-557",
+      "id": "troubleshooting-code-566",
       "title": "33. Troubleshooting",
       "slug": "troubleshooting",
       "type": "code",
@@ -11175,21 +11419,21 @@
       "text": "33. Troubleshooting — Build profile not applying expected optimization level"
     },
     {
-      "id": "troubleshooting-p-559",
+      "id": "troubleshooting-p-568",
       "title": "33. Troubleshooting",
       "slug": "troubleshooting",
       "type": "content",
       "text": "Verify the persisted profile:"
     },
     {
-      "id": "troubleshooting-code-560",
+      "id": "troubleshooting-code-569",
       "title": "33. Troubleshooting",
       "slug": "troubleshooting",
       "type": "code",
       "text": "cat ~/.config/fz/.profile.config"
     },
     {
-      "id": "troubleshooting-code-561",
+      "id": "troubleshooting-code-570",
       "title": "33. Troubleshooting",
       "slug": "troubleshooting",
       "type": "code",
@@ -11204,7 +11448,7 @@
       "text": "33. Troubleshooting — `fz pm add` fails / git not found"
     },
     {
-      "id": "troubleshooting-code-563",
+      "id": "troubleshooting-code-572",
       "title": "33. Troubleshooting",
       "slug": "troubleshooting",
       "type": "code",
@@ -11219,7 +11463,7 @@
       "text": "33. Troubleshooting — `fz pm install` hash mismatch"
     },
     {
-      "id": "troubleshooting-p-565",
+      "id": "troubleshooting-p-574",
       "title": "33. Troubleshooting",
       "slug": "troubleshooting",
       "type": "content",
@@ -11234,14 +11478,14 @@
       "text": "33. Troubleshooting — `compile_commands.json` not picked up by editor"
     },
     {
-      "id": "troubleshooting-p-567",
+      "id": "troubleshooting-p-576",
       "title": "33. Troubleshooting",
       "slug": "troubleshooting",
       "type": "content",
       "text": "Ensure the file is in the project root . Regenerate after adding new source files:"
     },
     {
-      "id": "troubleshooting-code-568",
+      "id": "troubleshooting-code-577",
       "title": "33. Troubleshooting",
       "slug": "troubleshooting",
       "type": "code",
@@ -11256,7 +11500,7 @@
       "text": "33. Troubleshooting — `fz -update` fails with permission denied"
     },
     {
-      "id": "troubleshooting-code-570",
+      "id": "troubleshooting-code-579",
       "title": "33. Troubleshooting",
       "slug": "troubleshooting",
       "type": "code",
@@ -11271,7 +11515,7 @@
       "text": "33. Troubleshooting — Watch mode does not detect changes on WSL2"
     },
     {
-      "id": "troubleshooting-p-572",
+      "id": "troubleshooting-p-581",
       "title": "33. Troubleshooting",
       "slug": "troubleshooting",
       "type": "content",
@@ -11286,14 +11530,14 @@
       "text": "33. Troubleshooting — Windows: `gcc` not found"
     },
     {
-      "id": "troubleshooting-p-574",
+      "id": "troubleshooting-p-583",
       "title": "33. Troubleshooting",
       "slug": "troubleshooting",
       "type": "content",
       "text": "Ensure MSYS2 mingw64\\bin is in your Windows PATH :"
     },
     {
-      "id": "troubleshooting-code-575",
+      "id": "troubleshooting-code-584",
       "title": "33. Troubleshooting",
       "slug": "troubleshooting",
       "type": "code",
@@ -11314,7 +11558,7 @@
       "text": "35. Virtual Filesystem Layer (Aegis)"
     },
     {
-      "id": "virtual-filesystem-layer-aegis-p-578",
+      "id": "virtual-filesystem-layer-aegis-p-587",
       "title": "35. Virtual Filesystem Layer (Aegis)",
       "slug": "virtual-filesystem-layer-aegis",
       "type": "content",
@@ -11329,14 +11573,14 @@
       "text": "35. Virtual Filesystem Layer (Aegis) — 35.1 Design: The `FileSystem` Interface"
     },
     {
-      "id": "virtual-filesystem-layer-aegis-code-580",
+      "id": "virtual-filesystem-layer-aegis-code-589",
       "title": "35. Virtual Filesystem Layer (Aegis)",
       "slug": "virtual-filesystem-layer-aegis",
       "type": "code",
       "text": "type FileSystem interface {\n    MkdirAll(path string, perm os.FileMode) error\n    WriteFile(path string, data []byte, perm os.FileMode) error\n    Read"
     },
     {
-      "id": "virtual-filesystem-layer-aegis-p-581",
+      "id": "virtual-filesystem-layer-aegis-p-590",
       "title": "35. Virtual Filesystem Layer (Aegis)",
       "slug": "virtual-filesystem-layer-aegis",
       "type": "content",
@@ -11351,28 +11595,28 @@
       "text": "35. Virtual Filesystem Layer (Aegis) — 35.2 Unix Implementation and TOCTOU Mitigation"
     },
     {
-      "id": "virtual-filesystem-layer-aegis-p-583",
+      "id": "virtual-filesystem-layer-aegis-p-592",
       "title": "35. Virtual Filesystem Layer (Aegis)",
       "slug": "virtual-filesystem-layer-aegis",
       "type": "content",
       "text": "OpenVerified on Unix:"
     },
     {
-      "id": "virtual-filesystem-layer-aegis-code-584",
+      "id": "virtual-filesystem-layer-aegis-code-593",
       "title": "35. Virtual Filesystem Layer (Aegis)",
       "slug": "virtual-filesystem-layer-aegis",
       "type": "code",
       "text": "pre, err := os.Lstat(path)          // metadata without following final symlink\nif pre.Mode()&os.ModeSymlink != 0 {\n    return nil, ErrSymlink        "
     },
     {
-      "id": "virtual-filesystem-layer-aegis-p-585",
+      "id": "virtual-filesystem-layer-aegis-p-594",
       "title": "35. Virtual Filesystem Layer (Aegis)",
       "slug": "virtual-filesystem-layer-aegis",
       "type": "content",
       "text": "Why Lstat ? Stat follows symlinks. An attacker could place a symlink at path ; Lstat inspects the link node itself and rejects it immediately."
     },
     {
-      "id": "virtual-filesystem-layer-aegis-p-586",
+      "id": "virtual-filesystem-layer-aegis-p-595",
       "title": "35. Virtual Filesystem Layer (Aegis)",
       "slug": "virtual-filesystem-layer-aegis",
       "type": "content",
@@ -11387,14 +11631,14 @@
       "text": "35. Virtual Filesystem Layer (Aegis) — 35.3 Windows Implementation"
     },
     {
-      "id": "virtual-filesystem-layer-aegis-p-588",
+      "id": "virtual-filesystem-layer-aegis-p-597",
       "title": "35. Virtual Filesystem Layer (Aegis)",
       "slug": "virtual-filesystem-layer-aegis",
       "type": "content",
       "text": "Native Windows support is a separate compilation unit , not a runtime fork:"
     },
     {
-      "id": "virtual-filesystem-layer-aegis-p-589",
+      "id": "virtual-filesystem-layer-aegis-p-598",
       "title": "35. Virtual Filesystem Layer (Aegis)",
       "slug": "virtual-filesystem-layer-aegis",
       "type": "content",
@@ -11409,7 +11653,7 @@
       "text": "35. Virtual Filesystem Layer (Aegis) — 35.4 The `Mock` Implementation and Fault Injection"
     },
     {
-      "id": "virtual-filesystem-layer-aegis-code-591",
+      "id": "virtual-filesystem-layer-aegis-code-600",
       "title": "35. Virtual Filesystem Layer (Aegis)",
       "slug": "virtual-filesystem-layer-aegis",
       "type": "code",
@@ -11439,42 +11683,42 @@
       "text": "36. Aegis Security Core — 36.1 Command Hardening: The `RunCommand` Pipeline"
     },
     {
-      "id": "aegis-security-core-p-595",
+      "id": "aegis-security-core-p-604",
       "title": "36. Aegis Security Core",
       "slug": "aegis-security-core",
       "type": "content",
       "text": "Every external process spawned by ForgeZero — git , ar , zig , fasm , gcc , g++ , clang , ld , nasm , objdump , nm , readelf — must pass through utils.RunCommand ."
     },
     {
-      "id": "aegis-security-core-p-596",
+      "id": "aegis-security-core-p-605",
       "title": "36. Aegis Security Core",
       "slug": "aegis-security-core",
       "type": "content",
       "text": "Stage 1 — Argument validation: ValidateCLIArg rejects shell metacharacters, backticks, pipes, redirection symbols, and embedded NUL/newline bytes."
     },
     {
-      "id": "aegis-security-core-p-597",
+      "id": "aegis-security-core-p-606",
       "title": "36. Aegis Security Core",
       "slug": "aegis-security-core",
       "type": "content",
       "text": "Stage 2 — Absolute executable resolution: exec.LookPath resolves the binary; no bare-name invocations."
     },
     {
-      "id": "aegis-security-core-p-598",
+      "id": "aegis-security-core-p-607",
       "title": "36. Aegis Security Core",
       "slug": "aegis-security-core",
       "type": "content",
       "text": "Stage 3 — Argument sanitization: Each argument is validated, preventing injection via malicious config flags or crafted filenames."
     },
     {
-      "id": "aegis-security-core-p-599",
+      "id": "aegis-security-core-p-608",
       "title": "36. Aegis Security Core",
       "slug": "aegis-security-core",
       "type": "content",
       "text": "Stage 4 — Fixed environment:"
     },
     {
-      "id": "aegis-security-core-p-600",
+      "id": "aegis-security-core-p-609",
       "title": "36. Aegis Security Core",
       "slug": "aegis-security-core",
       "type": "content",
@@ -11489,14 +11733,14 @@
       "text": "36. Aegis Security Core — 36.2 Atomic Writes: `SecureWriteFile`"
     },
     {
-      "id": "aegis-security-core-p-602",
+      "id": "aegis-security-core-p-611",
       "title": "36. Aegis Security Core",
       "slug": "aegis-security-core",
       "type": "content",
       "text": "atomicWrite algorithm:"
     },
     {
-      "id": "aegis-security-core-p-603",
+      "id": "aegis-security-core-p-612",
       "title": "36. Aegis Security Core",
       "slug": "aegis-security-core",
       "type": "content",
@@ -11511,21 +11755,21 @@
       "text": "36. Aegis Security Core — 36.3 Constant-Time Toolchain Checksum Verification"
     },
     {
-      "id": "aegis-security-core-p-605",
+      "id": "aegis-security-core-p-614",
       "title": "36. Aegis Security Core",
       "slug": "aegis-security-core",
       "type": "content",
       "text": ".fz.yaml may specify expected BLAKE3 digests per tool binary:"
     },
     {
-      "id": "aegis-security-core-code-606",
+      "id": "aegis-security-core-code-615",
       "title": "36. Aegis Security Core",
       "slug": "aegis-security-core",
       "type": "code",
       "text": "tool_checksums:\n  gcc: \"abc123...\"\n  nasm: \"def456...\""
     },
     {
-      "id": "aegis-security-core-p-607",
+      "id": "aegis-security-core-p-616",
       "title": "36. Aegis Security Core",
       "slug": "aegis-security-core",
       "type": "content",
@@ -11540,7 +11784,7 @@
       "text": "36. Aegis Security Core — 36.4 Execution Root and Path Confinement"
     },
     {
-      "id": "aegis-security-core-p-609",
+      "id": "aegis-security-core-p-618",
       "title": "36. Aegis Security Core",
       "slug": "aegis-security-core",
       "type": "content",
@@ -11554,7 +11798,7 @@
       "text": "37. System Self-Audit (`fz doctor`)"
     },
     {
-      "id": "system-self-audit-fz-doctor-p-611",
+      "id": "system-self-audit-fz-doctor-p-620",
       "title": "37. System Self-Audit (`fz doctor`)",
       "slug": "system-self-audit-fz-doctor",
       "type": "content",
@@ -11569,7 +11813,7 @@
       "text": "37. System Self-Audit (`fz doctor`) — 37.1 Invocation"
     },
     {
-      "id": "system-self-audit-fz-doctor-code-613",
+      "id": "system-self-audit-fz-doctor-code-622",
       "title": "37. System Self-Audit (`fz doctor`)",
       "slug": "system-self-audit-fz-doctor",
       "type": "code",
@@ -11584,28 +11828,28 @@
       "text": "37. System Self-Audit (`fz doctor`) — 37.2 Audit Pipeline (Four Stages)"
     },
     {
-      "id": "system-self-audit-fz-doctor-p-615",
+      "id": "system-self-audit-fz-doctor-p-624",
       "title": "37. System Self-Audit (`fz doctor`)",
       "slug": "system-self-audit-fz-doctor",
       "type": "content",
       "text": "Stage A — Toolchain Reachability: probes zig (required), fasm (required on non-Windows), wasm-ld (optional)."
     },
     {
-      "id": "system-self-audit-fz-doctor-p-616",
+      "id": "system-self-audit-fz-doctor-p-625",
       "title": "37. System Self-Audit (`fz doctor`)",
       "slug": "system-self-audit-fz-doctor",
       "type": "content",
       "text": "Stage B — Recursive Permission Audit: writes .fz_doctor_probe via SecureWriteFile , then walks the entire tree with OpenVerifiedRead on every regular file. Counts DirsScanned and FilesSeen ."
     },
     {
-      "id": "system-self-audit-fz-doctor-p-617",
+      "id": "system-self-audit-fz-doctor-p-626",
       "title": "37. System Self-Audit (`fz doctor`)",
       "slug": "system-self-audit-fz-doctor",
       "type": "content",
       "text": "Stage C — Platform Integrity:"
     },
     {
-      "id": "system-self-audit-fz-doctor-p-618",
+      "id": "system-self-audit-fz-doctor-p-627",
       "title": "37. System Self-Audit (`fz doctor`)",
       "slug": "system-self-audit-fz-doctor",
       "type": "content",
@@ -11620,7 +11864,7 @@
       "text": "37. System Self-Audit (`fz doctor`) — 37.3 Human-Readable Output"
     },
     {
-      "id": "system-self-audit-fz-doctor-code-620",
+      "id": "system-self-audit-fz-doctor-code-629",
       "title": "37. System Self-Audit (`fz doctor`)",
       "slug": "system-self-audit-fz-doctor",
       "type": "code",
@@ -11635,14 +11879,14 @@
       "text": "37. System Self-Audit (`fz doctor`) — 37.4 JSON Output"
     },
     {
-      "id": "system-self-audit-fz-doctor-code-622",
+      "id": "system-self-audit-fz-doctor-code-631",
       "title": "37. System Self-Audit (`fz doctor`)",
       "slug": "system-self-audit-fz-doctor",
       "type": "code",
       "text": "{\n  \"status\": \"ok\",\n  \"healthy\": true,\n  \"toolchain\": [\n    { \"name\": \"zig\", \"required\": true, \"found\": true, \"path\": \"/usr/local/bin/zig\" },\n    { \"n"
     },
     {
-      "id": "system-self-audit-fz-doctor-code-623",
+      "id": "system-self-audit-fz-doctor-code-632",
       "title": "37. System Self-Audit (`fz doctor`)",
       "slug": "system-self-audit-fz-doctor",
       "type": "code",
@@ -11664,14 +11908,14 @@
       "text": "38. Cross-Platform Readiness — 38.1 Compile-Time Backend Selection"
     },
     {
-      "id": "cross-platform-readiness-code-626",
+      "id": "cross-platform-readiness-code-635",
       "title": "38. Cross-Platform Readiness",
       "slug": "cross-platform-readiness",
       "type": "code",
       "text": "GOOS=linux   → compiles: unix.go, default_unix.go, rename_unix.go\nGOOS=windows → compiles: windows.go, default_windows.go, rename_windows.go\nGOOS=darw"
     },
     {
-      "id": "cross-platform-readiness-p-627",
+      "id": "cross-platform-readiness-p-636",
       "title": "38. Cross-Platform Readiness",
       "slug": "cross-platform-readiness",
       "type": "content",
@@ -11686,7 +11930,7 @@
       "text": "38. Cross-Platform Readiness — 38.2 Platform-Specific Syscall Drivers (v4.1.0)"
     },
     {
-      "id": "cross-platform-readiness-p-629",
+      "id": "cross-platform-readiness-p-638",
       "title": "38. Cross-Platform Readiness",
       "slug": "cross-platform-readiness",
       "type": "content",
@@ -11701,21 +11945,21 @@
       "text": "38. Cross-Platform Readiness — 38.3 Atomic Rename on Windows"
     },
     {
-      "id": "cross-platform-readiness-p-631",
+      "id": "cross-platform-readiness-p-640",
       "title": "38. Cross-Platform Readiness",
       "slug": "cross-platform-readiness",
       "type": "content",
       "text": "Windows may return sharing violations when AV or indexing software holds a handle. rename_windows.go implements bounded retry:"
     },
     {
-      "id": "cross-platform-readiness-code-632",
+      "id": "cross-platform-readiness-code-641",
       "title": "38. Cross-Platform Readiness",
       "slug": "cross-platform-readiness",
       "type": "code",
       "text": "for attempt := 0; attempt < 8; attempt++ {\n    if err := os.Rename(oldpath, newpath); err == nil {\n        return nil\n    }\n    last = err\n    time.Sl"
     },
     {
-      "id": "cross-platform-readiness-p-633",
+      "id": "cross-platform-readiness-p-642",
       "title": "38. Cross-Platform Readiness",
       "slug": "cross-platform-readiness",
       "type": "content",
@@ -11730,7 +11974,7 @@
       "text": "38. Cross-Platform Readiness — 38.4 Cross-Architecture Validation (v4.1.0)"
     },
     {
-      "id": "cross-platform-readiness-p-635",
+      "id": "cross-platform-readiness-p-644",
       "title": "38. Cross-Platform Readiness",
       "slug": "cross-platform-readiness",
       "type": "content",
@@ -11760,21 +12004,21 @@
       "text": "39. Testing Standards (Aegis) — 39.2 Zero-Allocation Enforcement (v4.1.0)"
     },
     {
-      "id": "testing-standards-aegis-p-639",
+      "id": "testing-standards-aegis-p-648",
       "title": "39. Testing Standards (Aegis)",
       "slug": "testing-standards-aegis",
       "type": "content",
       "text": "Allocation-tracking benchmarks for Linux and Windows targets enforce zero-allocation guarantees in critical paths:"
     },
     {
-      "id": "testing-standards-aegis-code-640",
+      "id": "testing-standards-aegis-code-649",
       "title": "39. Testing Standards (Aegis)",
       "slug": "testing-standards-aegis",
       "type": "code",
       "text": "BenchmarkCopyFileHot       0 allocs/op   0 B/op\nBenchmarkResolveSymbols    0 allocs/op   0 B/op\nBenchmarkEmitRelocations   0 allocs/op   0 B/op"
     },
     {
-      "id": "testing-standards-aegis-p-641",
+      "id": "testing-standards-aegis-p-650",
       "title": "39. Testing Standards (Aegis)",
       "slug": "testing-standards-aegis",
       "type": "content",
@@ -11789,7 +12033,7 @@
       "text": "39. Testing Standards (Aegis) — 39.3 Fault Injection via `fs.Mock`"
     },
     {
-      "id": "testing-standards-aegis-code-643",
+      "id": "testing-standards-aegis-code-652",
       "title": "39. Testing Standards (Aegis)",
       "slug": "testing-standards-aegis",
       "type": "code",
@@ -11804,7 +12048,7 @@
       "text": "39. Testing Standards (Aegis) — 39.4 Race and Integration Commands"
     },
     {
-      "id": "testing-standards-aegis-code-645",
+      "id": "testing-standards-aegis-code-654",
       "title": "39. Testing Standards (Aegis)",
       "slug": "testing-standards-aegis",
       "type": "code",
@@ -11819,21 +12063,21 @@
       "text": "39. Testing Standards (Aegis) — 39.5 Static Analysis (v4.1.0)"
     },
     {
-      "id": "testing-standards-aegis-p-647",
+      "id": "testing-standards-aegis-p-656",
       "title": "39. Testing Standards (Aegis)",
       "slug": "testing-standards-aegis",
       "type": "content",
       "text": "100% compliance with golangci-lint under strict configuration:"
     },
     {
-      "id": "testing-standards-aegis-code-648",
+      "id": "testing-standards-aegis-code-657",
       "title": "39. Testing Standards (Aegis)",
       "slug": "testing-standards-aegis",
       "type": "code",
       "text": "golangci-lint run -E gofmt,govet,staticcheck,unused ./..."
     },
     {
-      "id": "testing-standards-aegis-p-649",
+      "id": "testing-standards-aegis-p-658",
       "title": "39. Testing Standards (Aegis)",
       "slug": "testing-standards-aegis",
       "type": "content",
@@ -11848,28 +12092,28 @@
       "text": "39. Testing Standards (Aegis) — 39.6 Gloria Test Infrastructure (v4.4.0)"
     },
     {
-      "id": "testing-standards-aegis-p-651",
+      "id": "testing-standards-aegis-p-660",
       "title": "39. Testing Standards (Aegis)",
       "slug": "testing-standards-aegis",
       "type": "content",
       "text": "Gloria runtime tests use two helpers to avoid hardware dependencies:"
     },
     {
-      "id": "testing-standards-aegis-p-652",
+      "id": "testing-standards-aegis-p-661",
       "title": "39. Testing Standards (Aegis)",
       "slug": "testing-standards-aegis",
       "type": "content",
       "text": "patchVGA() — replaces the compile-time 0xB8000 constant with a pointer to a heap-allocated fake VGA buffer. Called at the start of any test that exercises VGA output. The substitution is undone via t."
     },
     {
-      "id": "testing-standards-aegis-p-653",
+      "id": "testing-standards-aegis-p-662",
       "title": "39. Testing Standards (Aegis)",
       "slug": "testing-standards-aegis",
       "type": "content",
       "text": "dumpVGA() — renders the fake VGA buffer to stdout using syscall.Write with zero heap allocations. Used in golden-file tests to verify expected screen output."
     },
     {
-      "id": "testing-standards-aegis-code-654",
+      "id": "testing-standards-aegis-code-663",
       "title": "39. Testing Standards (Aegis)",
       "slug": "testing-standards-aegis",
       "type": "code",
@@ -11884,7 +12128,7 @@
       "text": "39. Testing Standards (Aegis) — 39.7 Contributor Requirements"
     },
     {
-      "id": "testing-standards-aegis-p-656",
+      "id": "testing-standards-aegis-p-665",
       "title": "39. Testing Standards (Aegis)",
       "slug": "testing-standards-aegis",
       "type": "content",
@@ -11898,7 +12142,7 @@
       "text": "40. HADES Engine: Codegen & ELF Emission"
     },
     {
-      "id": "hades-engine-codegen-elf-emission-p-658",
+      "id": "hades-engine-codegen-elf-emission-p-667",
       "title": "40. HADES Engine: Codegen & ELF Emission",
       "slug": "hades-engine-codegen-elf-emission",
       "type": "content",
@@ -11913,21 +12157,21 @@
       "text": "40. HADES Engine: Codegen & ELF Emission — 40.1 ELF Emitter Refactor"
     },
     {
-      "id": "hades-engine-codegen-elf-emission-p-660",
+      "id": "hades-engine-codegen-elf-emission-p-669",
       "title": "40. HADES Engine: Codegen & ELF Emission",
       "slug": "hades-engine-codegen-elf-emission",
       "type": "content",
       "text": "Symbol table ordering. The ELF specification requires local symbols to precede global symbols in .symtab . Earlier versions of ForgeZero emitted symbols in parse order, which could produce object file"
     },
     {
-      "id": "hades-engine-codegen-elf-emission-p-661",
+      "id": "hades-engine-codegen-elf-emission-p-670",
       "title": "40. HADES Engine: Codegen & ELF Emission",
       "slug": "hades-engine-codegen-elf-emission",
       "type": "content",
       "text": "Absolute relocation offsets. call and jmp target resolution was recalculated to correctly compute offsets for absolute relocations. This was validated via a factorial execution test: a self-referentia"
     },
     {
-      "id": "hades-engine-codegen-elf-emission-p-662",
+      "id": "hades-engine-codegen-elf-emission-p-671",
       "title": "40. HADES Engine: Codegen & ELF Emission",
       "slug": "hades-engine-codegen-elf-emission",
       "type": "content",
@@ -11942,7 +12186,7 @@
       "text": "40. HADES Engine: Codegen & ELF Emission — 40.2 Parser Integrity Guards"
     },
     {
-      "id": "hades-engine-codegen-elf-emission-p-664",
+      "id": "hades-engine-codegen-elf-emission-p-673",
       "title": "40. HADES Engine: Codegen & ELF Emission",
       "slug": "hades-engine-codegen-elf-emission",
       "type": "content",
@@ -11957,7 +12201,7 @@
       "text": "40. HADES Engine: Codegen & ELF Emission — 40.3 Codegen Zero-Allocation Path"
     },
     {
-      "id": "hades-engine-codegen-elf-emission-p-666",
+      "id": "hades-engine-codegen-elf-emission-p-675",
       "title": "40. HADES Engine: Codegen & ELF Emission",
       "slug": "hades-engine-codegen-elf-emission",
       "type": "content",
@@ -11972,14 +12216,14 @@
       "text": "40. HADES Engine: Codegen & ELF Emission — 40.4 Extended Instruction Emission (v4.4.0)"
     },
     {
-      "id": "hades-engine-codegen-elf-emission-p-668",
+      "id": "hades-engine-codegen-elf-emission-p-677",
       "title": "40. HADES Engine: Codegen & ELF Emission",
       "slug": "hades-engine-codegen-elf-emission",
       "type": "content",
       "text": "The following codegen primitives were added or extended for Gloria JIT support:"
     },
     {
-      "id": "hades-engine-codegen-elf-emission-p-669",
+      "id": "hades-engine-codegen-elf-emission-p-678",
       "title": "40. HADES Engine: Codegen & ELF Emission",
       "slug": "hades-engine-codegen-elf-emission",
       "type": "content",
@@ -11994,14 +12238,14 @@
       "text": "40. HADES Engine: Codegen & ELF Emission — 40.5 Direct Linker Bypass (`-ld`)"
     },
     {
-      "id": "hades-engine-codegen-elf-emission-p-671",
+      "id": "hades-engine-codegen-elf-emission-p-680",
       "title": "40. HADES Engine: Codegen & ELF Emission",
       "slug": "hades-engine-codegen-elf-emission",
       "type": "content",
       "text": "The -ld flag exposes the HADES linker invocation directly, bypassing the gcc / clang wrapper layer used in -mode auto and -mode c . This is distinct from -mode raw (which selects ld over gcc at the li"
     },
     {
-      "id": "hades-engine-codegen-elf-emission-p-672",
+      "id": "hades-engine-codegen-elf-emission-p-681",
       "title": "40. HADES Engine: Codegen & ELF Emission",
       "slug": "hades-engine-codegen-elf-emission",
       "type": "content",
@@ -12015,28 +12259,28 @@
       "text": "41. Contributing"
     },
     {
-      "id": "contributing-p-674",
+      "id": "contributing-p-683",
       "title": "41. Contributing",
       "slug": "contributing",
       "type": "content",
       "text": "Contributions are welcome: bug reports, feature requests, documentation improvements, and code patches."
     },
     {
-      "id": "contributing-p-675",
+      "id": "contributing-p-684",
       "title": "41. Contributing",
       "slug": "contributing",
       "type": "content",
       "text": "Commit messages should be concise and use the imperative mood: \"Add JSON output mode\" not \"Added JSON output mode\" ."
     },
     {
-      "id": "contributing-p-676",
+      "id": "contributing-p-685",
       "title": "41. Contributing",
       "slug": "contributing",
       "type": "content",
       "text": "For machine-generated contributor guidance, run fz contribute in your project directory. The resulting CONTRIBUTING_USER.md reflects the actual state of your environment and toolchain."
     },
     {
-      "id": "contributing-p-677",
+      "id": "contributing-p-686",
       "title": "41. Contributing",
       "slug": "contributing",
       "type": "content",
@@ -12050,21 +12294,21 @@
       "text": "42. License"
     },
     {
-      "id": "license-p-679",
+      "id": "license-p-688",
       "title": "42. License",
       "slug": "license",
       "type": "content",
-      "text": "ForgeZero is released under the GNU General Public License v3.0 (GPLv3) ."
+      "text": "ForgeZero is released under the GPLv3 License ."
     },
     {
-      "id": "license-code-680",
+      "id": "license-code-689",
       "title": "42. License",
       "slug": "license",
       "type": "code",
-      "text": "GNU GENERAL PUBLIC LICENSE\nVersion 3, 29 June 2007\n\nCopyright (c) AlexVoste\n\nThis program is free software: you can redistribute it and/or modify\nit u"
+      "text": "\n * Copyright (c) 2026 ForgeZero-cli\n *\n * This program is free software: you can redistribute it and/or modify\n * it under the terms of the GNU Gener"
     },
     {
-      "id": "license-p-681",
+      "id": "license-p-690",
       "title": "42. License",
       "slug": "license",
       "type": "content",
