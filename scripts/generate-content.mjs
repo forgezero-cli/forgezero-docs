@@ -1,12 +1,15 @@
-import { readFileSync, writeFileSync, mkdirSync } from 'node:fs'
+import { marked } from 'marked'
+import { mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { marked } from 'marked'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const root = join(__dirname, '..')
 const readmePath = join(root, 'README.md')
+const docsPath = join(root, 'docs')
+const contentsPath = join(docsPath, 'CONTENTS')
 const outputPath = join(root, 'src', 'data', 'content.json')
+
 
 function slugify(text) {
   return text
@@ -286,10 +289,153 @@ function buildNavigation(sections) {
     .filter((g) => g.items.length > 0)
 }
 
+function readMarkdownDocsIndex() {
+  const raw = readFileSync(contentsPath, 'utf-8')
+  // Extract list of doc names/filenames under CONTENTS
+  // Example lines:
+  // INSTALL
+  // CLI-REFERENCE
+  // YOUTUBE.md
+  const lines = raw.split(/\r?\n/)
+
+  const start = Math.max(0, lines.findIndex((l) => l.trim() === '') )
+
+  // Find the first line that looks like a doc entry (uppercase word or starts with YOUTUBE)
+  // but only after we encounter the header block `CONTENTS` in the file.
+  const headerIdx = lines.findIndex((l) => l.trim() === 'CONTENTS')
+  const scanLines = headerIdx >= 0 ? lines.slice(headerIdx + 1) : lines
+
+  const entries = []
+  for (const l of scanLines) {
+    const t = l.trim()
+    if (!t) continue
+    if (/^READING ORDER/i.test(t)) break
+    if (/^[A-Z0-9][A-Z0-9 \-()]+$/i.test(t)) {
+      entries.push(t)
+    }
+  }
+
+  return entries
+}
+
+function extractSectionsFromDocs() {
+  const docOrder = readMarkdownDocsIndex()
+
+  // Build sections in the order defined by docs/CONTENTS.
+  // Each doc file becomes one section with:
+  // - slug: slugify(filenameWithoutExt)
+  // - title: from the filename (or first H1 if present)
+  const usedSlugs = new Set()
+  const sections = []
+
+  function uniqueSlug(base, fallbackNumber) {
+    let slug = base
+    if (!slug) slug = `section-${fallbackNumber}`
+    if (usedSlugs.has(slug)) slug = `${slug}-${fallbackNumber}`
+    usedSlugs.add(slug)
+    return slug
+  }
+
+  // Map common docs to deterministic `number` ranges expected by buildNavigation.
+  // If we can't infer, we default to sequential numbers.
+  const numberByDocName = new Map([
+    ['INSTALL', 3],
+    ['CLI-REFERENCE', 7],
+    ['WORKFLOW', 4],
+    ['ARCHITECTURE', 18],
+    ['LANGUAGES', 5],
+    ['INTERNALS', 18],
+    ['YOUTUBE.md', 42],
+  ])
+
+  for (let i = 0; i < docOrder.length; i++) {
+    const entry = docOrder[i]
+    const name = entry.replace(/\.md$/i, '')
+
+    const possiblePaths = [
+      join(docsPath, entry),
+      join(docsPath, `${entry}.md`),
+      join(docsPath, name),
+      join(docsPath, `${name}.md`),
+    ]
+
+    let contentPath = null
+    for (const p of possiblePaths) {
+      try {
+        readFileSync(p, 'utf-8')
+        contentPath = p
+        break
+      } catch {
+        // ignore
+      }
+    }
+    if (!contentPath) continue
+
+    const md = readFileSync(contentPath, 'utf-8')
+
+    // Title: first level-1 header like `# something`
+    const m = md.match(/^#\s+(.+)$/m)
+    const title = m ? m[1].trim() : entry.replace(/\.[^.]+$/, '').trim()
+
+    const baseSlug = slugify(title.replace(/^\d+\.[\s-]*/, '').trim())
+    const number = numberByDocName.get(entry) ?? numberByDocName.get(name) ?? i + 1
+
+    const slug = uniqueSlug(baseSlug || slugify(name), number)
+
+    const blocks = parseSectionContent(md)
+
+    sections.push({
+      id: slug,
+      number,
+      title,
+      slug,
+      blocks,
+    })
+  }
+
+  // Ensure we always have an introduction section for the routes.
+  if (!sections.some((s) => s.slug === 'introduction')) {
+    const introMd = readFileSync(join(root, 'README.md'), 'utf-8')
+    const extracted = extractSections(introMd)
+    const intro = extracted.find((s) => s.slug === 'introduction')
+    if (intro) sections.unshift(intro)
+  }
+
+  return sections
+}
+
+const sections = extractSectionsFromDocs()
+
+// Дополняем недостающие секции из README.md, чтобы документация была полной.
+// docs/CONTENTS задаёт порядок и набор основных страниц, а README добивает пробелы.
 const readme = readFileSync(readmePath, 'utf-8')
-const sections = extractSections(readme)
+const readmeSections = extractSections(readme)
+
+const existingSlugs = new Set(sections.map((s) => s.slug))
+for (const s of readmeSections) {
+  if (!existingSlugs.has(s.slug)) {
+    sections.push(s)
+    existingSlugs.add(s.slug)
+  }
+}
+
 const navigation = buildNavigation(sections)
 const searchIndex = buildSearchIndex(sections)
+
+// If navigation logic didn't include an introduction, keep a safe fallback.
+if (!navigation.some((g) => g.items?.some?.((it) => it.slug === 'introduction'))) {
+  const intro = sections.find((s) => s.slug === 'introduction')
+  if (intro) {
+    const gettingStarted = navigation.find((g) => g.label === 'Getting Started')
+    if (gettingStarted) {
+      if (!gettingStarted.items.some((it) => it.slug === 'introduction')) {
+        gettingStarted.items.unshift({ title: intro.title, slug: intro.slug, id: intro.id })
+      }
+    }
+  }
+}
+
+
 
 const output = {
   meta: {
