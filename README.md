@@ -5,7 +5,6 @@
   <br>
   <b>▶️ Click here to watch the full benchmark (4.5x faster) on YouTube</b>
 </p>
-
 # ForgeZero (fz) — Complete Documentation
 
 <div align="center">
