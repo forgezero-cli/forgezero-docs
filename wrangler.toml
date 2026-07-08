@@ -1,7 +1,4 @@
-name = "forgezero-docs" 
-type = "javascript" 
-main = "./dist/index.js" 
+name = "forgezero-docs"
 
 [site]
-bucket = "./dist" 
-base = "/forgezero-docs" 
+bucket = "./dist"
