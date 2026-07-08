@@ -46,8 +46,8 @@
 </template>
 
 <script setup>
-import { RouterLink } from 'vue-router'
 import { content } from '@/composables/useSearch'
+import { RouterLink } from 'vue-router'
 
 defineProps({
   open: Boolean,

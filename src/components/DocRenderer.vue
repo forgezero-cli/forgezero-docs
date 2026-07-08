@@ -60,8 +60,8 @@
 </template>
 
 <script setup>
-import CodeBlock from '@/components/CodeBlock.vue'
 import AlertBlock from '@/components/AlertBlock.vue'
+import CodeBlock from '@/components/CodeBlock.vue'
 
 defineProps({
   blocks: {
