@@ -1,6 +1,6 @@
 <template>
-  <aside class="hidden xl:block fixed top-16 right-0 bottom-0 w-56 overflow-y-auto border-l border-border dark:border-slate-800 bg-surface dark:bg-slate-950 p-6">
-    <p class="text-xs font-semibold uppercase tracking-wider text-ink-faint dark:text-slate-500 mb-4">
+  <aside class="hidden xl:block fixed top-16 right-0 bottom-0 w-56 overflow-y-auto border-l border-surface-200 dark:border-surface-700 bg-surface dark:bg-slate-950 p-6">
+    <p class="text-xs font-semibold uppercase tracking-wider text-surface-600 dark:text-slate-500 mb-4">
       On this page
     </p>
     <nav aria-label="Table of contents">

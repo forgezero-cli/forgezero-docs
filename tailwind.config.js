@@ -5,33 +5,37 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        sans: ['-apple-system', 'BlinkMacSystemFont', '"Segoe UI"', '"Roboto"', '"Oxygen"', '"Ubuntu"', '"Cantarell"', '"Helvetica Neue"', 'sans-serif'],
+        sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', '"Segoe UI"', 'system-ui', '"Roboto"', '"Oxygen"', '"Ubuntu"', '"Cantarell"', '"Helvetica Neue"', 'sans-serif'],
         mono: ['"Fira Code"', '"Cascadia Code"', '"Source Code Pro"', 'ui-monospace', 'monospace'],
+        serif: ['Georgia', 'Cambria', '"Times New Roman"', 'Times', 'serif'],
+      },
+      letterSpacing: {
+        tightest: '-0.02em',
       },
       colors: {
         surface: {
-          50: '#f9fafb',
-          100: '#f3f4f6',
-          200: '#e5e7eb',
-          300: '#d1d5db',
-          400: '#9ca3af',
-          500: '#6b7280',
-          600: '#4b5563',
-          700: '#374151',
-          800: '#1f2937',
-          900: '#111827',
+            50: '#faf7ef',
+            100: '#f3ecd8',
+            200: '#e9dfbf',
+            300: '#dccaa3',
+            400: '#c4b08a',
+            500: '#a38e68',
+            600: '#6e6656',
+            700: '#121212',
+            800: '#0b0b0b',
+            900: '#000000',
         },
         brand: {
-          50: '#f0f4ff',
-          100: '#e0e9ff',
-          200: '#c7d9ff',
-          300: '#a4c4ff',
-          400: '#7ba3ff',
-          500: '#5578ff',
-          600: '#3855e8',
-          700: '#2d42ce',
-          800: '#273da8',
-          900: '#252f6d',
+          50: '#eef2ff',
+          100: '#e0e7ff',
+          200: '#c7d2fe',
+          300: '#a5b4fc',
+          400: '#7c93f5',
+          500: '#5563e6',
+          600: '#3343b8',
+          700: '#2b3a9a',
+          800: '#202a6e',
+          900: '#0b1236',
         },
         success: {
           50: '#f0fdf4',
@@ -78,6 +82,7 @@ export default {
         'fade-in': 'fadeIn 0.3s ease-in-out',
         'slide-in': 'slideIn 0.3s ease-in-out',
         'pulse-soft': 'pulseSoft 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+        'elevate': 'elevate 0.35s cubic-bezier(0.2,0.9,0.2,1) both',
       },
       keyframes: {
         fadeIn: {
@@ -91,6 +96,10 @@ export default {
         pulseSoft: {
           '0%, 100%': { opacity: '1' },
           '50%': { opacity: '0.7' },
+        },
+        elevate: {
+          '0%': { transform: 'translateY(0)', boxShadow: '0 6px 14px -8px rgba(0,0,0,0.12)' },
+          '100%': { transform: 'translateY(-6px)', boxShadow: '0 18px 40px -12px rgba(0,0,0,0.18)' },
         },
       },
       fontSize: {

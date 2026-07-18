@@ -11,7 +11,7 @@
         @close="sidebarOpen = false"
       />
       <main class="flex-1 min-w-0 lg:pl-72 xl:pr-56">
-        <div class="max-w-4xl mx-auto px-6 py-8 lg:px-10">
+        <div class="max-w-3xl mx-auto px-6 py-8 lg:px-10">
           <RouterView />
         </div>
       </main>

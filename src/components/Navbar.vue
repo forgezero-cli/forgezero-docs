@@ -1,5 +1,5 @@
 <template>
-  <header class="fixed top-0 inset-x-0 z-50 h-16 border-b border-surface-200 dark:border-surface-700 bg-white/95 dark:bg-surface-900/95 backdrop-blur-sm">
+  <header class="fixed top-0 inset-x-0 z-50 h-14 border-b border-surface-200 dark:border-surface-700 bg-white/90 dark:bg-surface-900/90 backdrop-blur-sm">
     <div class="h-full px-4 sm:px-6 lg:px-8 flex items-center justify-between gap-4 max-w-7xl mx-auto">
       <div class="flex items-center gap-4">
         <button
@@ -14,12 +14,12 @@
         </button>
 
         <RouterLink to="/" class="flex items-center gap-2.5 shrink-0 group">
-          <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-brand-600 to-brand-700 flex items-center justify-center shadow-sm group-hover:shadow-md transition-shadow">
-            <span class="text-white font-bold text-sm font-mono">FZ</span>
+          <div class="w-8 h-8 rounded-md bg-brand-600 flex items-center justify-center transition-colors">
+            <span class="text-white font-semibold text-sm font-mono">FZ</span>
           </div>
           <div class="hidden sm:flex flex-col">
-            <span class="font-semibold text-surface-900 dark:text-surface-50 leading-4">ForgeZero</span>
-            <span class="text-xs text-surface-500 dark:text-surface-400 font-medium">Docs</span>
+            <span class="font-medium text-surface-900 dark:text-surface-50 leading-4">ForgeZero</span>
+            <span class="text-xs text-surface-600 dark:text-surface-400 font-medium">Documentation</span>
           </div>
         </RouterLink>
       </div>

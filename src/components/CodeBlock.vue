@@ -1,6 +1,6 @@
 <template>
-  <div class="relative group rounded-xl overflow-hidden border border-surface-200 dark:border-surface-700 mb-6 doc-code-block">
-    <div class="flex items-center justify-between px-4 py-3 bg-surface-100 dark:bg-surface-900 border-b border-surface-200 dark:border-surface-700">
+  <div class="relative group rounded-md overflow-hidden border border-surface-200 dark:border-surface-700 mb-6 doc-code-block">
+    <div class="flex items-center justify-between px-4 py-2 bg-surface-50 dark:bg-surface-900 border-b border-surface-200 dark:border-surface-700">
       <span class="text-xs font-mono text-surface-600 dark:text-surface-400 uppercase tracking-widest font-semibold">{{ language }}</span>
       <button
         type="button"
@@ -17,7 +17,7 @@
         {{ copied ? 'Copied!' : 'Copy' }}
       </button>
     </div>
-    <pre class="overflow-x-auto p-4 bg-white dark:bg-surface-800 text-sm leading-relaxed text-surface-900 dark:text-surface-100"><code ref="codeRef" class="hljs font-mono" v-html="highlighted" /></pre>
+    <pre class="overflow-x-auto p-4 bg-surface-50 dark:bg-surface-800 text-sm leading-relaxed text-surface-900 dark:text-surface-100"><code ref="codeRef" class="hljs font-mono" v-html="highlighted" /></pre>
   </div>
 </template>
 

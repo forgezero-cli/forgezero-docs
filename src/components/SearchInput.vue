@@ -3,7 +3,7 @@
     <button
       v-if="!mobile"
       type="button"
-      class="w-full flex items-center gap-2 px-4 py-2 text-sm rounded-lg border border-surface-300 bg-surface-50 text-surface-600 hover:border-surface-400 dark:border-surface-600 dark:bg-surface-800 dark:text-surface-400 dark:hover:border-surface-500 transition-all focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent"
+      class="w-full flex items-center gap-2 px-4 py-2 text-sm rounded-md border border-surface-300 bg-surface-50 text-surface-600 hover:border-surface-400 dark:border-surface-600 dark:bg-surface-800 dark:text-surface-400 dark:hover:border-surface-500 transition-colors focus:outline-none focus:ring-1 focus:ring-brand-500 focus:border-transparent"
       @click="openSearch"
     >
       <svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -14,7 +14,7 @@
     </button>
 
     <div v-if="mobile" class="flex items-center gap-2 px-0 py-0">
-      <div class="flex-1 flex items-center gap-2 px-3 py-2 rounded-lg border border-surface-300 bg-surface-50 dark:border-surface-600 dark:bg-surface-700">
+      <div class="flex-1 flex items-center gap-2 px-3 py-2 rounded-md border border-surface-300 bg-surface-50 dark:border-surface-600 dark:bg-surface-700">
         <svg class="w-4 h-4 shrink-0 text-surface-500 dark:text-surface-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
           <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
         </svg>
@@ -58,7 +58,7 @@
         @keydown.escape="closeSearch"
       >
         <div class="fixed inset-0 bg-black/40 backdrop-blur-sm" @click="closeSearch" />
-        <div class="relative w-full max-w-xl bg-white dark:bg-surface-800 rounded-2xl shadow-xl border border-surface-200 dark:border-surface-700 overflow-hidden animate-slide-in">
+        <div class="relative w-full max-w-xl bg-white dark:bg-surface-800 rounded-xl shadow-lg border border-surface-200 dark:border-surface-700 overflow-hidden animate-slide-in">
           <div class="flex items-center gap-3 px-4 border-b border-surface-200 dark:border-surface-700 bg-surface-50 dark:bg-surface-700">
             <svg class="w-5 h-5 text-surface-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
               <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />

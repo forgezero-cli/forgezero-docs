@@ -8,7 +8,10 @@
   }
 
   body {
-    @apply font-sans text-surface-900 bg-white dark:bg-surface-900 dark:text-surface-50 antialiased;
+    @apply font-sans text-surface-900 bg-surface-50 dark:bg-surface-900 dark:text-surface-50 antialiased;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    -webkit-text-size-adjust: 100%;
   }
 
   ::selection {
@@ -24,7 +27,8 @@
   }
 
   h1, h2, h3, h4, h5, h6 {
-    @apply font-semibold tracking-tight text-surface-900 dark:text-surface-50;
+    @apply font-serif tracking-tight text-surface-900 dark:text-surface-50;
+    font-variant: small-caps;
   }
 
   h1 {
@@ -44,13 +48,18 @@
   }
 
   button {
-    @apply transition-all duration-200;
+    @apply transition-transform duration-200 ease-out;
   }
 }
 
 @layer components {
   .btn {
-    @apply inline-flex items-center justify-center px-4 py-2 rounded-lg font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-500 dark:focus:ring-offset-surface-900;
+    @apply inline-flex items-center justify-center px-4 py-2 rounded-md font-medium transition-transform duration-250 ease-out focus:outline-none focus:ring-1 focus:ring-offset-1 focus:ring-brand-500 dark:focus:ring-offset-surface-900;
+  }
+
+  .btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 24px -12px rgba(0,0,0,0.18);
   }
 
   .btn-primary {
@@ -70,15 +79,20 @@
   }
 
   .input {
-    @apply w-full px-4 py-2 rounded-lg border border-surface-300 bg-white text-surface-900 placeholder-surface-500 transition-all focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent dark:bg-surface-800 dark:border-surface-700 dark:text-surface-50 dark:placeholder-surface-400;
+    @apply w-full px-4 py-2 rounded-md border border-surface-300 bg-white text-surface-900 placeholder-surface-500 transition-colors focus:outline-none focus:ring-1 focus:ring-brand-500 focus:border-transparent dark:bg-surface-800 dark:border-surface-700 dark:text-surface-50 dark:placeholder-surface-400;
   }
 
   .card {
-    @apply rounded-lg border border-surface-200 bg-white shadow-sm dark:bg-surface-800 dark:border-surface-700;
+    @apply border border-surface-200 bg-white dark:bg-surface-800 dark:border-surface-700;
   }
 
   .card-hover {
-    @apply cursor-pointer transition-all hover:shadow-md hover:border-brand-300 dark:hover:border-brand-600;
+    @apply cursor-pointer transition-transform duration-300 ease-out;
+  }
+
+  .card-hover:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 18px 40px -12px rgba(0,0,0,0.12);
   }
 
   .badge {
@@ -111,6 +125,12 @@
 
   .prose-base {
     @apply text-base leading-7 text-surface-700 dark:text-surface-300;
+    max-width: 70ch;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 0.25rem;
+    padding-right: 0.25rem;
+    font-feature-settings: "kern" 1, "liga" 1;
   }
 
   .prose-sm {
@@ -122,7 +142,7 @@
   }
 
   .doc-h1 {
-    @apply text-4xl font-bold mb-6 tracking-tight;
+    @apply text-5xl font-bold mb-6 tracking-tight;
   }
 
   .doc-h2 {
@@ -138,7 +158,7 @@
   }
 
   .doc-p {
-    @apply mb-4 prose-base;
+    @apply mb-6 prose-base;
   }
 
   .doc-ul {
@@ -162,7 +182,7 @@
   }
 
   .doc-code-block {
-    @apply mb-6 rounded-lg overflow-hidden border border-surface-200 dark:border-surface-700;
+    @apply mb-6 overflow-hidden border border-surface-200 dark:border-surface-700;
   }
 
   .doc-code-block pre {
@@ -170,7 +190,7 @@
   }
 
   .doc-table {
-    @apply w-full text-sm border-collapse mb-6 rounded-lg border border-surface-200 overflow-hidden dark:border-surface-700;
+    @apply w-full text-sm border-collapse mb-6 rounded-md border border-surface-200 overflow-hidden dark:border-surface-700;
   }
 
   .doc-table th {
@@ -195,10 +215,11 @@
 
   .doc-link {
     @apply text-brand-600 hover:text-brand-700 underline underline-offset-2 transition-colors dark:text-brand-400 dark:hover:text-brand-300;
+    text-decoration-thickness: 1px;
   }
 
   .alert {
-    @apply p-4 rounded-lg border-l-4 mb-4;
+    @apply p-4 rounded-md border-l-4 mb-4;
   }
 
   .alert-info {
