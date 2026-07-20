@@ -1,40 +1,46 @@
-import DocLayout from '@/layouts/DocLayout.vue'
-import { createRouter, createWebHashHistory } from 'vue-router'
+import TerminalView from "@/components/TerminalView.vue";
+import DocLayout from "@/layouts/DocLayout.vue";
+import { createRouter, createWebHashHistory } from "vue-router";
 
-const DocSectionView = () => import('@/views/DocSectionView.vue')
+const DocSectionView = () => import("@/views/DocSectionView.vue");
 
 const routes = [
   {
-    path: '/',
+    path: "/",
     component: DocLayout,
     children: [
       {
-        path: '',
-        redirect: '/docs/introduction',
+        path: "",
+        redirect: "/docs/introduction",
       },
       {
-        path: 'docs/:slug',
-        name: 'doc-section',
+        path: "docs/:slug",
+        name: "doc-section",
         component: DocSectionView,
         props: true,
+      },
+      {
+        path: "terminal",
+        name: "terminal-view",
+        component: TerminalView,
       },
     ],
   },
   {
-    path: '/:pathMatch(.*)*',
-    redirect: '/',
+    path: "/:pathMatch(.*)*",
+    redirect: "/",
   },
-]
+];
 
 const router = createRouter({
   history: createWebHashHistory(),
   routes,
   scrollBehavior(to) {
     if (to.hash) {
-      return { el: to.hash, behavior: 'smooth', top: 80 }
+      return { el: to.hash, behavior: "smooth", top: 80 };
     }
-    return { top: 0 }
+    return { top: 0 };
   },
-})
+});
 
-export default router
+export default router;
