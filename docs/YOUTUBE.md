@@ -1,5 +1,8 @@
 # ForgeZero — Benchmark Video
 
+### New link to a youtube video showing the build process of a redis database.
+[View on Youtube](https://www.youtube.com/watch?v=4mWq0VcKFO8)
+
 [Watch on YouTube](https://www.youtube.com/watch?v=0mbejIDcxsw)
 
 ## Description
@@ -19,7 +22,9 @@ The linked call-to-action text describes it as showing a 4.5x speedup.
 ```bash
 git clone https://github.com/forgezero-cli/ForgeZero
 cd ForgeZero
-go build -o fz ./cmd/fz
+chmod +x build.sh && ./build.sh
+# or
+bash build.sh # or sh build.sh
 
 ./bench.sh   # edit NUM_MODULES in the script to change scale
 
@@ -27,3 +32,4 @@ hyperfine --warmup 3 --prepare 'make clean && rm -rf .fz_objs fz_out' \
   './fz -dir . -out fz_out' 'make -j4' \
   --export-markdown results.md
 ```
+
