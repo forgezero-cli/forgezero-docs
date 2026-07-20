@@ -1,67 +1,66 @@
 <template>
-  <aside class="hidden xl:block fixed top-16 right-0 bottom-0 w-56 overflow-y-auto border-l border-surface-200 dark:border-surface-700 bg-surface dark:bg-slate-950 p-6">
-    <p class="text-xs font-semibold uppercase tracking-wider text-surface-600 dark:text-slate-500 mb-4">
-      On this page
-    </p>
-    <nav aria-label="Table of contents">
-      <ul class="space-y-2">
-        <li v-for="heading in headings" :key="heading.id">
-          <a
-            :href="`#${heading.id}`"
-            class="block text-sm transition-colors"
-            :class="[
-              heading.level === 3 ? 'pl-3' : '',
-              activeId === heading.id
-                ? 'text-accent dark:text-blue-300 font-medium'
-                : 'text-ink-muted dark:text-slate-400 hover:text-ink dark:hover:text-slate-200',
-            ]"
-            @click.prevent="scrollTo(heading.id)"
-          >
-            {{ heading.content }}
-          </a>
-        </li>
-      </ul>
-    </nav>
+  <aside class="hidden xl:block w-56 shrink-0">
+    <div
+      class="sticky top-28 rounded-[22px] border border-white/[0.05] bg-[#0D0D0D]/60 p-4 backdrop-blur-md"
+    >
+      <p
+        class="text-[10px] font-semibold uppercase tracking-[0.3em] text-zinc-500"
+      >
+        On this page
+      </p>
+      <nav aria-label="Table of contents" class="mt-4">
+        <ul class="space-y-2">
+          <li v-for="heading in headings" :key="heading.id">
+            <a
+              :href="`#${heading.id}`"
+              class="block text-sm leading-6 transition-colors"
+              :class="[
+                heading.level === 3 ? 'pl-3' : '',
+                activeId === heading.id
+                  ? 'text-white'
+                  : 'text-zinc-500 hover:text-zinc-200',
+              ]"
+              @click.prevent="scrollTo(heading.id)"
+            >
+              {{ heading.content }}
+            </a>
+          </li>
+        </ul>
+      </nav>
+    </div>
   </aside>
 </template>
 
 <script setup>
-import { onMounted, onUnmounted, ref } from 'vue'
+import { onMounted, onUnmounted, ref } from "vue";
 
-defineProps({
-  headings: {
-    type: Array,
-    default: () => [],
-  },
-})
+defineProps({ headings: { type: Array, default: () => [] } });
 
-const activeId = ref('')
+const activeId = ref("");
 
 function scrollTo(id) {
-  const el = document.getElementById(id)
+  const el = document.getElementById(id);
   if (el) {
-    el.scrollIntoView({ behavior: 'smooth', block: 'start' })
-    history.replaceState(null, '', `#${id}`)
-    activeId.value = id
+    el.scrollIntoView({ behavior: "smooth", block: "start" });
+    history.replaceState(null, "", `#${id}`);
+    activeId.value = id;
   }
 }
 
 function updateActiveHeading() {
-  const headingEls = document.querySelectorAll('.doc-content [id]')
-  let current = ''
+  const headingEls = document.querySelectorAll(".doc-content [id]");
+  let current = "";
   for (const el of headingEls) {
-    const rect = el.getBoundingClientRect()
-    if (rect.top <= 100) current = el.id
+    const rect = el.getBoundingClientRect();
+    if (rect.top <= 100) current = el.id;
   }
-  if (current) activeId.value = current
+  if (current) activeId.value = current;
 }
 
 onMounted(() => {
-  window.addEventListener('scroll', updateActiveHeading, { passive: true })
-  updateActiveHeading()
-})
+  window.addEventListener("scroll", updateActiveHeading, { passive: true });
+  updateActiveHeading();
+});
 
-onUnmounted(() => {
-  window.removeEventListener('scroll', updateActiveHeading)
-})
+onUnmounted(() => window.removeEventListener("scroll", updateActiveHeading));
 </script>
